@@ -1,0 +1,253 @@
+.analyze-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.required {
+  color: var(--danger);
+}
+
+.label-with-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.resume-select {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.resume-select:focus {
+  border-color: var(--accent-primary);
+}
+
+/* Form */
+.analyze-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.textarea-row .form-textarea {
+  min-height: 200px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Loading */
+.analysis-loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.loading-pulse {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  margin: 0 auto 1.5rem;
+  animation: loadPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadPulse {
+  0%, 100% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+.loading-sub {
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+  opacity: 0.6;
+}
+
+/* Results */
+.analysis-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Score Card */
+.result-score-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+}
+
+.score-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.score-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.score-bg-circle {
+  fill: none;
+  stroke: var(--border-color);
+  stroke-width: 8;
+}
+
+.score-progress-circle {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s ease;
+}
+
+.score-high .score-progress-circle { stroke: var(--success); }
+.score-medium .score-progress-circle { stroke: var(--warning); }
+.score-low .score-progress-circle { stroke: var(--danger); }
+
+.score-number {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.score-high .score-number { color: var(--success); }
+.score-medium .score-number { color: var(--warning); }
+.score-low .score-number { color: var(--danger); }
+
+.score-info {
+  flex: 1;
+}
+
+.score-info h2 {
+  margin-bottom: 0.5rem;
+}
+
+.score-info p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.score-actions {
+  flex-shrink: 0;
+}
+
+/* Details Grid */
+.result-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.result-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.section-icon.danger { color: var(--danger); }
+.section-icon.warning { color: var(--warning); }
+.section-icon.success { color: var(--success); }
+
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ats-flags-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ats-flags-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--warning);
+  line-height: 1.5;
+}
+
+.ats-flags-list li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.flag-clear {
+  color: var(--success) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .result-score-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .score-actions {
+    width: 100%;
+  }
+
+  .score-actions .btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,58 @@
+# HireIQ - AI Job Search & Outreach Assistant
+
+# Dependencies
+node_modules/
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# Build outputs
+dist/
+build/
+*.jar
+*.war
+
+# Environment & Credentials (.env, local yml overrides)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.example
+.env.*
+application-local.yml
+application-mysql.yml
+application-secret.yml
+application-dev.yml
+application-prod.yml
+application.yml
+application-dev.yml
+
+# H2 & Database files
+*.db
+*.mv.db
+*.trace.db
+
+# IDE & Editor files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# OS Generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs & Temp files
+*.log
+logs/
+prd_text.txt
+tmp/
+temp/

@@ -1,0 +1,97 @@
+.outreach-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.outreach-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* Results */
+.outreach-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.outreach-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.outreach-card:hover {
+  border-color: var(--border-hover);
+}
+
+.outreach-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.outreach-card-header > div:nth-child(2) {
+  flex: 1;
+}
+
+.outreach-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.outreach-icon.linkedin {
+  background: rgba(0, 119, 181, 0.15);
+  color: #0077b5;
+}
+
+.outreach-icon.email {
+  background: rgba(108, 92, 231, 0.15);
+  color: var(--accent-primary);
+}
+
+.outreach-icon.blurb {
+  background: rgba(0, 206, 201, 0.15);
+  color: var(--accent-secondary);
+}
+
+.char-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.email-subject {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.outreach-content {
+  padding: 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.email-body {
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .outreach-card-header {
+    flex-wrap: wrap;
+  }
+}

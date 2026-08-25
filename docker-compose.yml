@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: hireiq-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hireiq
+    ports:
+      - "3306:3306"
+    volumes:
+      - hireiq_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: hireiq-backend
+    ports:
+      - "8080:8080"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: hireiq
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      JWT_SECRET: ${JWT_SECRET:-hireiq-super-secret-key-that-is-at-least-256-bits-long-for-hs256-signing}
+      AI_API_KEY: ${AI_API_KEY}
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  hireiq_mysql_data:
