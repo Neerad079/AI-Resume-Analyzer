@@ -1,25 +1,34 @@
 package com.hireiq.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hireiq.config.JwtService;
 import com.hireiq.dto.AuthResponse;
+import com.hireiq.dto.GoogleAuthRequest;
 import com.hireiq.dto.LoginRequest;
 import com.hireiq.dto.RegisterRequest;
 import com.hireiq.model.User;
 import com.hireiq.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -65,18 +74,44 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse googleLogin(com.hireiq.dto.GoogleAuthRequest request) {
+    public AuthResponse googleLogin(GoogleAuthRequest request) {
         String email = request.getEmail();
-        String name = request.getFullName() != null ? request.getFullName() : "Google User";
+        String name = request.getFullName();
 
-        if (email == null || email.isBlank()) {
-            throw new RuntimeException("Invalid Google login credentials");
+        // If a real Google JWT idToken is sent, parse the claims payload
+        if (request.getIdToken() != null && request.getIdToken().contains(".")) {
+            try {
+                String[] parts = request.getIdToken().split("\\.");
+                if (parts.length >= 2) {
+                    String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+                    JsonNode payload = objectMapper.readTree(payloadJson);
+                    if (payload.has("email")) {
+                        email = payload.get("email").asText();
+                    }
+                    if (payload.has("name")) {
+                        name = payload.get("name").asText();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Failed to decode Google ID Token payload: {}", e.getMessage());
+            }
         }
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
+        if (email == null || email.isBlank()) {
+            throw new RuntimeException("Invalid Google authentication payload");
+        }
+
+        if (name == null || name.isBlank()) {
+            name = email.split("@")[0];
+        }
+
+        final String finalEmail = email;
+        final String finalName = name;
+
+        User user = userRepository.findByEmail(finalEmail).orElseGet(() -> {
             User newUser = User.builder()
-                    .email(email)
-                    .fullName(name)
+                    .email(finalEmail)
+                    .fullName(finalName)
                     .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
                     .build();
             return userRepository.save(newUser);

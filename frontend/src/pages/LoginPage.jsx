@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../api';
 import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
@@ -13,26 +13,26 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleGoogleAuth = async (googleEmail) => {
-    setError('');
-    setLoading(true);
-    try {
-      const res = await authAPI.googleLogin({
-        email: googleEmail,
-        fullName: googleEmail.split('@')[0].replace('.', ' '),
-        idToken: "google-oauth-token-ok"
-      });
+  // Handle Spring Security OAuth2 callback redirect URL params: ?token=...&email=...
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const userEmail = searchParams.get('email');
+    const name = searchParams.get('name');
+    const userId = searchParams.get('userId');
+
+    if (token && userEmail) {
       login(
-        { fullName: res.data.fullName, email: res.data.email, userId: res.data.userId },
-        res.data.token
+        { fullName: decodeURIComponent(name || userEmail.split('@')[0]), email: decodeURIComponent(userEmail), userId: userId ? Number(userId) : 1 },
+        decodeURIComponent(token)
       );
       navigate('/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Google Login failed. Make sure backend is running.');
-    } finally {
-      setLoading(false);
     }
+  }, [searchParams, login, navigate]);
+
+  const handleSpringOAuth2Login = () => {
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
   };
 
   const handleSubmit = async (e) => {
@@ -138,11 +138,12 @@ export default function LoginPage() {
           <span>OR</span>
         </div>
 
+        {/* Spring Security OAuth2 Login Button */}
         <button
           type="button"
           className="btn btn-secondary auth-google-btn"
-          id="btn-google-login"
-          onClick={() => handleGoogleAuth("user.google@gmail.com")}
+          id="btn-google-login-spring"
+          onClick={handleSpringOAuth2Login}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
