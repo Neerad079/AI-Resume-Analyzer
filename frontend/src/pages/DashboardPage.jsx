@@ -1,6 +1,7 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowRight, UploadCloud, FileSearch, CheckCircle2 } from 'lucide-react';
+import DotGridBG from '../components/DotGridBG';
 import './Dashboard.css';
 
 export default function DashboardPage() {
@@ -12,27 +13,53 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="dashboard-home animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <main style={{ flex: 1 }}>
-        {/* Hero Section matching stitch_ai_resume_optimizer (4) */}
-        <section className="hero-section hero-gradient" style={{ textAlign: 'center', padding: '4rem 1.5rem 3rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div
+      className="dashboard-home"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 'calc(100vh - 64px)',
+        position: 'relative',
+        margin: 'calc(-1 * var(--space-md))',
+        padding: '0',
+        background: 'transparent',
+      }}
+    >
+      {/* Framer-style Dot Grid Animated Background covering the ENTIRE Dashboard Page */}
+      <DotGridBG />
+
+      <main style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+        {/* Hero Section */}
+        <section
+          className="hero-section hero-section-relative"
+          style={{
+            textAlign: 'center',
+            padding: '5rem 1.5rem 3.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justify: 'center',
+            background: 'transparent',
+          }}
+        >
           <div style={{ maxWidth: '890px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div className="hero-badge" style={{ marginBottom: '1.5rem' }}>
+            <div className="hero-badge hero-badge-anim" style={{ marginBottom: '1.5rem' }}>
               <span>AI-Powered Optimization</span>
             </div>
 
-            <h1 className="hero-title" style={{ fontSize: '3.25rem', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '1.25rem' }}>
-              Beat the ATS.<br />Land the Interview.
+            <h1 className="hero-title hero-title-anim" style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: '1.25rem' }}>
+              <span className="gradient-text-anim">Beat the ATS.</span><br />
+              <span>Land the Interview.</span>
             </h1>
 
-            <p className="hero-subtitle" style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '640px', margin: '0 auto 2rem', lineHeight: 1.6 }}>
+            <p className="hero-subtitle hero-subtitle-anim" style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '640px', margin: '0 auto 2.25rem', lineHeight: 1.65 }}>
               Stop guessing what hiring managers want. Our AI analyzes your resume against target job descriptions, uncovering missing keywords and formatting flaws instantly.
             </p>
 
-            <div className="hero-cta-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-              <button className="btn btn-primary btn-lg hero-btn" onClick={handleStartAnalysis} style={{ padding: '0.875rem 2rem', fontSize: '1rem', height: '48px' }}>
+            <div className="hero-cta-group hero-cta-anim" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <button className="btn btn-primary btn-lg hero-btn hero-btn-interactive" onClick={handleStartAnalysis} style={{ padding: '0.875rem 2.25rem', fontSize: '1.0625rem', height: '52px', borderRadius: 'var(--radius-md)' }}>
                 <span>Analyze My Resume</span>
-                <ArrowRight size={18} />
+                <ArrowRight size={19} />
               </button>
               <p className="cta-note" style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>No credit card required.</p>
             </div>
@@ -40,12 +67,22 @@ export default function DashboardPage() {
         </section>
 
         {/* Social Proof Logos */}
-        <section className="social-proof" style={{ padding: '2.5rem 1.5rem', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-surface-lowest)', textAlign: 'center' }}>
+        <section
+          className="social-proof hero-section-relative"
+          style={{
+            padding: '2.5rem 1.5rem',
+            borderTop: '1px solid var(--border-color)',
+            borderBottom: '1px solid var(--border-color)',
+            background: 'rgba(255, 255, 255, 0.35)',
+            backdropFilter: 'blur(8px)',
+            textAlign: 'center',
+          }}
+        >
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <p className="social-proof-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>
               Trusted by professionals hired at
             </p>
-            <div className="logos-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3rem', opacity: 0.7 }}>
+            <div className="logos-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3.5rem', opacity: 0.75 }}>
               <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Google</span>
               <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Microsoft</span>
               <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Amazon</span>
@@ -56,16 +93,16 @@ export default function DashboardPage() {
         </section>
 
         {/* How it Works */}
-        <section className="how-it-works" style={{ padding: '4rem 1.5rem', background: 'var(--bg-surface-bright)' }}>
+        <section className="how-it-works hero-section-relative" style={{ padding: '4.5rem 1.5rem', background: 'transparent' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-heading)', marginBottom: '0.5rem' }}>How it Works</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Three simple steps to a perfectly tailored resume.</p>
+            <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--text-heading)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>How it Works</h2>
+              <p style={{ fontSize: '1.0625rem', color: 'var(--text-secondary)' }}>Three simple steps to a perfectly tailored resume.</p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
               {/* Step 1 */}
-              <div className="step-card glass-panel" style={{ padding: '2rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <div className="step-card glass-panel" style={{ padding: '2.25rem 2rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(12px)', border: '1px solid var(--border-color)' }}>
                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--bg-surface-low)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', border: '1px solid var(--border-color)' }}>
                   <UploadCloud size={26} color="var(--color-primary)" />
                 </div>
@@ -74,7 +111,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Step 2 */}
-              <div className="step-card glass-panel" style={{ padding: '2rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <div className="step-card glass-panel" style={{ padding: '2.25rem 2rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(12px)', border: '1px solid var(--border-color)' }}>
                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--bg-surface-low)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', border: '1px solid var(--border-color)' }}>
                   <FileSearch size={26} color="var(--color-primary)" />
                 </div>
@@ -83,7 +120,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Step 3 */}
-              <div className="step-card glass-panel" style={{ padding: '2rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+              <div className="step-card glass-panel" style={{ padding: '2.25rem 2rem', borderRadius: 'var(--radius-xl)', textAlign: 'center', background: 'rgba(255, 255, 255, 0.65)', backdropFilter: 'blur(12px)', border: '1px solid var(--border-color)' }}>
                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--bg-surface-low)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', border: '1px solid var(--border-color)' }}>
                   <CheckCircle2 size={26} color="var(--color-secondary)" />
                 </div>
@@ -96,7 +133,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer style={{ borderTop: '1px solid var(--border-color)', background: 'var(--bg-surface-low)', padding: '2rem 1.5rem' }}>
+      <footer style={{ borderTop: '1px solid var(--border-color)', background: 'rgba(255, 255, 255, 0.4)', backdropFilter: 'blur(8px)', padding: '2rem 1.5rem', position: 'relative', zIndex: 1 }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
           <div>
             <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-heading)', display: 'block', marginBottom: '0.25rem' }}>HireIQ</span>
