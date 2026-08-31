@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../api';
-import { Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import './Auth.css';
 
 export default function LoginPage() {
@@ -56,19 +56,12 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-bg-shapes">
-        <div className="shape shape-1" />
-        <div className="shape shape-2" />
-        <div className="shape shape-3" />
-      </div>
+      <div className="auth-bg-shapes" />
 
       <div className="auth-container animate-fade-in">
         <div className="auth-header">
-          <div className="auth-logo">
-            <Sparkles size={32} />
-          </div>
-          <h1>Welcome back</h1>
-          <p className="auth-subtitle">Sign in to your HireIQ account</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-heading)', marginBottom: '0.25rem' }}>HireIQ</h1>
+          <p className="auth-subtitle">Sign in to your account</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}

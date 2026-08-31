@@ -7,7 +7,6 @@ import {
   Mail,
   History,
   LogOut,
-  Sparkles,
   Menu,
   X,
 } from 'lucide-react';
@@ -25,18 +24,17 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-    { to: '/resumes', icon: <FileText size={18} />, label: 'My Resumes' },
-    { to: '/analyze', icon: <FileSearch size={18} />, label: 'Analyze' },
-    { to: '/outreach', icon: <Mail size={18} />, label: 'Outreach' },
-    { to: '/history', icon: <History size={18} />, label: 'History' },
+    { to: '/dashboard', icon: <LayoutDashboard size={17} />, label: 'Dashboard' },
+    { to: '/resumes', icon: <FileText size={17} />, label: 'My Resumes' },
+    { to: '/analyze', icon: <FileSearch size={17} />, label: 'Analyze' },
+    { to: '/outreach', icon: <Mail size={17} />, label: 'Outreach' },
+    { to: '/history', icon: <History size={17} />, label: 'History' },
   ];
 
   return (
     <nav className="navbar">
       <div className="navbar-inner">
         <NavLink to="/dashboard" className="navbar-brand">
-          <Sparkles size={24} className="brand-icon" />
           <span className="brand-text">HireIQ</span>
         </NavLink>
 
