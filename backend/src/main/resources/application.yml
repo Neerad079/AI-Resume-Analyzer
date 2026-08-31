@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: hireiq-backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/hireiq?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+  # Spring Security OAuth2 Client configuration
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope:
+              - email
+              - profile
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:}
+  expiration: 86400000  # 24 hours in milliseconds
+
+# AI Provider Configuration (Supports NVIDIA NIM, Groq, Gemini, OpenRouter, Anthropic, or Local Ollama)
+ai:
+  provider: ${AI_PROVIDER:nvidia} # options: nvidia, groq, gemini, openai
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:moonshotai/kimi-k3}
+  base-url: ${AI_BASE_URL:https://integrate.api.nvidia.com/v1}
+
+# Google OAuth Properties
+google:
+  client-id: ${GOOGLE_CLIENT_ID:}
+  client-secret: ${GOOGLE_CLIENT_SECRET:}
+
+# CORS
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}

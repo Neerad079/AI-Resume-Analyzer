@@ -13,21 +13,15 @@ build/
 *.jar
 *.war
 
-# Environment & Credentials (.env, local yml overrides)
+# Environment & Credentials (.env holds secrets, NEVER commit it)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.example
-.env.*
+# NOTE: .env.example is NOT gitignored — it's the template for contributors
 application-local.yml
-application-mysql.yml
 application-secret.yml
-application-dev.yml
-application-prod.yml
-application.yml
-application-dev.yml
 
 # H2 & Database files
 *.db

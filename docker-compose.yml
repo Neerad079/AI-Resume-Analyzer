@@ -1,16 +1,16 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: hireiq-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: hireiq
     ports:
-      - "3306:3306"
+      - "3308:3306"   # Maps to 3308 on host since 3306 and 3307 are already in use
     volumes:
       - hireiq_mysql_data:/var/lib/mysql
+    networks:
+      - hireiq-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -22,18 +22,40 @@ services:
     container_name: hireiq-backend
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DB: hireiq
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-      JWT_SECRET: ${JWT_SECRET:-hireiq-super-secret-key-that-is-at-least-256-bits-long-for-hs256-signing}
-      AI_API_KEY: ${AI_API_KEY}
-      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hireiq?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      CORS_ORIGINS: ${CORS_ORIGINS}
+    volumes:
+      - backend_logs:/app/logs
+    networks:
+      - hireiq-network
     depends_on:
       mysql:
         condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: hireiq-frontend
+    ports:
+      - "5173:80"         # Access the app at http://localhost:5173
+    env_file:
+      - .env
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+    networks:
+      - hireiq-network
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   hireiq_mysql_data:
+  backend_logs:
+
+networks:
+  hireiq-network:
+    driver: bridge
