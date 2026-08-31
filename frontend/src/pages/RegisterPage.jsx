@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../api';
-import { Sparkles, User, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import './Auth.css';
 
 export default function RegisterPage() {
@@ -36,18 +36,11 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-bg-shapes">
-        <div className="shape shape-1" />
-        <div className="shape shape-2" />
-        <div className="shape shape-3" />
-      </div>
+      <div className="auth-bg-shapes" />
 
       <div className="auth-container animate-fade-in">
         <div className="auth-header">
-          <div className="auth-logo">
-            <Sparkles size={32} />
-          </div>
-          <h1>Create Account</h1>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-heading)', marginBottom: '0.25rem' }}>HireIQ</h1>
           <p className="auth-subtitle">Get started with HireIQ for free</p>
         </div>
 

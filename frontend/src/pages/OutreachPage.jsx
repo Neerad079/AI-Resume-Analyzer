@@ -114,7 +114,7 @@ export default function OutreachPage() {
     <div className="outreach-page animate-fade-in">
       <div className="page-header">
         <h1>
-          <Mail size={28} style={{ color: 'var(--accent-secondary)' }} />
+          <Mail size={24} className="header-icon" />
           Outreach Generator
         </h1>
         <p>Generate personalized LinkedIn DMs, cold emails, and cover letter blurbs powered by AI.</p>
@@ -189,7 +189,7 @@ export default function OutreachPage() {
             {loading ? (
               <><div className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> Generating...</>
             ) : (
-              <><Sparkles size={18} /> Generate Outreach</>
+              <>Generate Outreach</>
             )}
           </button>
           {result && (

@@ -7,8 +7,7 @@ import {
   ChevronRight,
   Calendar,
   Building2,
-  Briefcase,
-  ExternalLink,
+  ChevronDown,
 } from 'lucide-react';
 import './HistoryPage.css';
 
@@ -75,7 +74,7 @@ export default function HistoryPage() {
     <div className="history-page animate-fade-in">
       <div className="page-header">
         <h1>
-          <History size={28} style={{ color: '#e17055' }} />
+          <History size={24} className="header-icon" />
           Application History
         </h1>
         <p>Track your analyses and outreach messages over time.</p>
@@ -128,8 +127,8 @@ export default function HistoryPage() {
                     >
                       <Trash2 size={15} />
                     </button>
-                    <ExternalLink
-                      size={16}
+                    <ChevronDown
+                      size={18}
                       className={`expand-icon ${expanded === item.id ? 'rotated' : ''}`}
                     />
                   </div>

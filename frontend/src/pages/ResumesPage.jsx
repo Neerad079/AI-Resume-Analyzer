@@ -88,7 +88,7 @@ export default function ResumesPage() {
       <div className="page-header header-with-action">
         <div>
           <h1>
-            <FileText size={28} style={{ color: 'var(--accent-primary)' }} />
+            <FileText size={24} className="header-icon" />
             My Resumes
           </h1>
           <p>Manage multiple resume profiles (e.g. Java Backend, React Frontend, Data Science).</p>
