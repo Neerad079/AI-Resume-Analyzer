@@ -1,0 +1,238 @@
+/* DiagnosePage.css — matches existing HireIQ design language */
+
+/* ── Page layout ── */
+.dx-page { display: flex; flex-direction: column; gap: 2rem; }
+
+.dx-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ── Score ring ── */
+.dx-score-ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.dx-ring-bg {
+  fill: none;
+  stroke: var(--bg-surface-container);
+  stroke-width: 8;
+}
+
+.dx-ring-fg {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: stroke-dasharray 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dx-ring-inner {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -56%);
+  text-align: center;
+  line-height: 1;
+}
+
+.dx-ring-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.04em;
+}
+.dx-ring-denom {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.dx-ring-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* ── Scores hero card ── */
+.dx-scores-card { padding: 2rem; }
+
+.dx-scores-header {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.dx-scores-divider {
+  width: 1px;
+  height: 80px;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+.dx-hirability {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.dx-hirability-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Issues grid ── */
+.dx-issues-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dx-issue-group {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.dx-critical { border-left: 4px solid var(--color-error); }
+.dx-moderate { border-left: 4px solid #f59e0b; }
+.dx-minor    { border-left: 4px solid var(--color-tertiary); }
+
+.dx-issue-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: var(--bg-card);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+}
+.dx-issue-header:hover { background: var(--bg-surface-low); }
+
+.dx-issue-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.dx-critical .dx-issue-header-left { color: var(--color-error); }
+.dx-moderate .dx-issue-header-left { color: #d97706; }
+.dx-minor    .dx-issue-header-left { color: var(--color-tertiary); }
+
+.dx-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: var(--bg-surface-container);
+  color: var(--text-secondary);
+}
+
+.dx-issue-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-subtle);
+}
+.dx-issue-item {
+  padding: 0.75rem 1rem 0.75rem 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+.dx-issue-item:last-child { border-bottom: none; }
+.dx-issue-item::before {
+  content: '';
+  position: absolute;
+  left: 0.875rem;
+  top: 1.05rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+/* ── Two-column section ── */
+.dx-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* ── Strengths list ── */
+.dx-strengths-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dx-strengths-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* ── Checklist ── */
+.dx-checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.dx-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.dx-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-surface-container);
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Results wrapper ── */
+.dx-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .dx-scores-header { gap: 1.5rem; }
+  .dx-scores-divider { display: none; }
+  .dx-two-col { grid-template-columns: 1fr; }
+}

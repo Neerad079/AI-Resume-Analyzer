@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
 }
 
 .landing-nav {
@@ -65,6 +67,7 @@
   justify-content: center;
   text-align: center;
   min-height: 75vh;
+  background: transparent;
 }
 
 .hero-content {
@@ -131,7 +134,9 @@
 /* Social Proof */
 .social-proof {
   padding: 40px 20px;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }
@@ -157,7 +162,7 @@
   align-items: center;
   gap: 48px;
   flex-wrap: wrap;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .logo-item {
@@ -170,7 +175,7 @@
 /* How It Works */
 .how-it-works {
   padding: 80px 40px;
-  background: var(--bg-surface);
+  background: transparent;
 }
 
 .how-it-works-inner {
@@ -206,11 +211,13 @@
 
 .step-card {
   text-align: center;
-  transition: transform var(--transition-base);
+  transition: transform var(--transition-base), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .step-card:hover {
   transform: translateY(-4px);
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.08);
 }
 
 .step-icon-wrapper {
@@ -240,3 +247,4 @@
   font-size: 0.875rem;
   color: var(--text-secondary);
 }
+

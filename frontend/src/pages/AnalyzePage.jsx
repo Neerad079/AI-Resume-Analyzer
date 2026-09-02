@@ -19,6 +19,7 @@ import {
   Download,
   Key,
 } from 'lucide-react';
+import RewriteStudio from '../components/RewriteStudio';
 import './Analyze.css';
 
 export default function AnalyzePage() {
@@ -31,6 +32,7 @@ export default function AnalyzePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [showRewriteStudio, setShowRewriteStudio] = useState(false);
 
   const [savedResumes, setSavedResumes] = useState([]);
   const [selectedResumeId, setSelectedResumeId] = useState('');
@@ -343,8 +345,8 @@ export default function AnalyzePage() {
           <p className="loading-sub">Connecting to Gemini AI engine</p>
         </div>
       )}
-
-      {/* Results Section (matching Stitch code.html screen 2) */}
+      
+      {/* Results Section */}
       {result && (
         <div className="analysis-results animate-slide-up">
           {/* Match Score Hero Card */}
@@ -364,22 +366,45 @@ export default function AnalyzePage() {
             </div>
             <div className="score-info">
               <h2>{getScoreLabel(result.matchScore)}</h2>
-              <p>{result.summary || 'Your resume closely aligns with target role requirements. Implementing suggested keywords will maximize ATS parsing success.'}</p>
+              {/* Recommendation Badge */}
+              {result.recommendation && (
+                <span className={`chip ${
+                  result.recommendation.includes('Strong') ? 'chip-success' :
+                  result.recommendation.includes('Do Not') ? 'chip-error' : 'chip-info'
+                }`} style={{ marginBottom: '0.5rem', display: 'inline-flex' }}>
+                  {result.recommendation}
+                </span>
+              )}
+              {/* Fit Score bar */}
+              {result.fitScore > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.5rem 0' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Recruiter Fit</span>
+                  <div style={{ flex: 1, height: 6, borderRadius: 9999, background: 'var(--bg-surface-container)' }}>
+                    <div style={{ width: `${result.fitScore * 10}%`, height: '100%', borderRadius: 9999, background: result.fitScore >= 7 ? 'var(--color-secondary)' : result.fitScore >= 5 ? 'var(--color-tertiary)' : 'var(--color-error)', transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-primary)', minWidth: '2rem' }}>{result.fitScore}/10</span>
+                </div>
+              )}
+              {/* Honest Take */}
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: '0.25rem' }}>
+                {result.honestTake || result.summary || 'Analysis complete.'}
+              </p>
             </div>
 
             <div className="score-actions">
+              <button
+                className="btn btn-accent btn-sm"
+                onClick={() => setShowRewriteStudio(true)}
+                style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', fontWeight: 700 }}
+              >
+                <Zap size={16} /> AI Resume Rewriter
+              </button>
               <button
                 className="btn btn-primary btn-sm"
                 onClick={handleSave}
                 disabled={saving || saved}
               >
-                {saved ? (
-                  <><Check size={16} /> Saved to History</>
-                ) : saving ? (
-                  'Saving...'
-                ) : (
-                  <><Save size={16} /> Save Analysis</>
-                )}
+                {saved ? <><Check size={16} /> Saved</> : saving ? 'Saving...' : <><Save size={16} /> Save</>}
               </button>
               {!generatedOutreach && (
                 <button
@@ -393,55 +418,104 @@ export default function AnalyzePage() {
             </div>
           </div>
 
-          {/* Core Grid: Suggested Improvements + Side Utilities */}
-          <div className="result-details-grid" style={{ gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
-            {/* Left Column: Suggested Improvements (Stitch Screen 2 centerpiece) */}
+          {/* Recruiter Intel Grid — 2 columns */}
+          <div className="result-details-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+            {result.mustFix && result.mustFix.length > 0 && (
+              <div className="result-section">
+                <div className="section-header">
+                  <XCircle size={18} className="section-icon danger" />
+                  <h3>Must Fix Before Applying</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {result.mustFix.map((item, i) => (
+                    <div key={i} className="diff-box" style={{ padding: '0.625rem 0.75rem', borderLeft: '3px solid var(--color-error)' }}>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {result.strongAssets && result.strongAssets.length > 0 && (
+              <div className="result-section">
+                <div className="section-header">
+                  <CheckCircle size={18} className="section-icon success" />
+                  <h3>Your Strongest Assets</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {result.strongAssets.map((item, i) => (
+                    <div key={i} className="diff-box" style={{ padding: '0.625rem 0.75rem', borderLeft: '3px solid var(--color-secondary)' }}>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {result.shouldFix && result.shouldFix.length > 0 && (
+              <div className="result-section">
+                <div className="section-header">
+                  <Lightbulb size={18} className="section-icon warning" />
+                  <h3>Should Fix (Raise Your Score)</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {result.shouldFix.map((item, i) => (
+                    <div key={i} className="diff-box" style={{ padding: '0.625rem 0.75rem', borderLeft: '3px solid #f59e0b' }}>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {result.coverLetterPriority && result.coverLetterPriority.length > 0 && (
+              <div className="result-section">
+                <div className="section-header">
+                  <Mail size={18} className="section-icon info" />
+                  <h3>Cover Letter Must-Hits</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {result.coverLetterPriority.map((item, i) => (
+                    <div key={i} className="diff-box" style={{ padding: '0.625rem 0.75rem', borderLeft: '3px solid var(--color-tertiary)' }}>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Keyword section + right column */}
+          <div className="result-details-grid" style={{ gridTemplateColumns: '2fr 1fr', gap: '1.25rem' }}>
             <div className="result-section">
               <div className="section-header">
                 <Sparkles size={20} className="section-icon warning" />
-                <h3>Suggested Improvements</h3>
+                <h3>Keyword Injection Map</h3>
               </div>
-              
               <div className="suggestions-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {result.keywordSuggestions && result.keywordSuggestions.length > 0 ? (
                   result.keywordSuggestions.map((kw, i) => (
                     <div key={i} className="diff-box">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <strong style={{ fontSize: '0.8125rem', color: 'var(--text-heading)' }}>
-                          Target Key Area #{i + 1}
-                        </strong>
-                        <span className="chip chip-warning">High Impact</span>
+                        <strong style={{ fontSize: '0.8125rem', color: 'var(--text-heading)' }}>Keyword #{i + 1}</strong>
+                        <span className="chip chip-warning">Add to Resume</span>
                       </div>
                       <div className="diff-suggested">
-                        <strong style={{ color: 'var(--accent)' }}>AI Optimization:</strong> "{kw}"
+                        <strong style={{ color: 'var(--accent)' }}>Insert:</strong> "{kw}"
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="diff-box">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <strong style={{ fontSize: '0.8125rem', color: 'var(--text-heading)' }}>Action Item</strong>
-                      <span className="chip chip-success">High Impact</span>
-                    </div>
-                    <p className="diff-original">Conducted tasks without quantitative outcomes.</p>
-                    <p className="diff-suggested">
-                      <strong>AI Suggestion:</strong> "Spearheaded key initiatives across target domains, directly improving project efficiency and delivery performance by 24%."
-                    </p>
-                  </div>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>All major keywords already present.</p>
                 )}
               </div>
             </div>
 
-            {/* Right Column: Missing Keywords & Outreach */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              {/* Missing Keywords */}
               <div className="result-section">
                 <div className="section-header">
                   <Key size={18} className="section-icon danger" />
-                  <h3>Missing Keywords</h3>
+                  <h3>Missing Skills</h3>
                 </div>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                  The ATS is looking for these exact phrases from the job description:
+                  ATS-critical phrases from the JD not found in your resume:
                 </p>
                 <div className="chips-container">
                   {result.missingSkills?.map((skill, i) => (
@@ -453,7 +527,6 @@ export default function AnalyzePage() {
                 </div>
               </div>
 
-              {/* Outreach Generator Card (from Stitch Screen 2) */}
               <div className="result-section">
                 <div className="section-header" style={{ justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -461,62 +534,36 @@ export default function AnalyzePage() {
                     <h3>Outreach Draft</h3>
                   </div>
                   <div style={{ display: 'flex', gap: '0.25rem' }}>
-                    <button
-                      className={`btn btn-xs ${outreachFormat === 'linkedin' ? 'btn-primary' : 'btn-ghost'}`}
-                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.6875rem' }}
-                      onClick={() => setOutreachFormat('linkedin')}
-                    >
-                      DM
-                    </button>
-                    <button
-                      className={`btn btn-xs ${outreachFormat === 'email' ? 'btn-primary' : 'btn-ghost'}`}
-                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.6875rem' }}
-                      onClick={() => setOutreachFormat('email')}
-                    >
-                      Email
-                    </button>
+                    <button className={`btn btn-xs ${outreachFormat === 'linkedin' ? 'btn-primary' : 'btn-ghost'}`} style={{ padding: '0.25rem 0.5rem', fontSize: '0.6875rem' }} onClick={() => setOutreachFormat('linkedin')}>DM</button>
+                    <button className={`btn btn-xs ${outreachFormat === 'email' ? 'btn-primary' : 'btn-ghost'}`} style={{ padding: '0.25rem 0.5rem', fontSize: '0.6875rem' }} onClick={() => setOutreachFormat('email')}>Email</button>
                   </div>
                 </div>
-
                 {generatedOutreach ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{
-                      background: 'var(--bg-input)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '0.75rem',
-                      fontSize: '0.75rem',
-                      lineHeight: 1.5,
-                      maxHeight: '180px',
-                      overflowY: 'auto'
-                    }}>
+                    <div style={{ background: 'var(--bg-surface-low)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '0.75rem', fontSize: '0.75rem', lineHeight: 1.5, maxHeight: '180px', overflowY: 'auto' }}>
                       {outreachFormat === 'linkedin' ? generatedOutreach.linkedinDm : generatedOutreach.coldEmail}
                     </div>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      style={{ width: '100%', justifyContent: 'center' }}
-                      onClick={() => handleCopy(
-                        outreachFormat === 'linkedin' ? generatedOutreach.linkedinDm : generatedOutreach.coldEmail,
-                        'outreach'
-                      )}
-                    >
-                      {copiedKey === 'outreach' ? <><Check size={14} /> Copied to Clipboard</> : <><Copy size={14} /> Copy Message</>}
+                    <button className="btn btn-secondary btn-sm" style={{ width: '100%', justifyContent: 'center' }} onClick={() => handleCopy(outreachFormat === 'linkedin' ? generatedOutreach.linkedinDm : generatedOutreach.coldEmail, 'outreach')}>
+                      {copiedKey === 'outreach' ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy Message</>}
                     </button>
                   </div>
                 ) : (
-                  <button
-                    className="btn btn-tertiary btn-sm"
-                    style={{ width: '100%', justifyContent: 'center' }}
-                    onClick={handleQuickOutreach}
-                    disabled={outreachLoading}
-                  >
-                    {outreachLoading ? 'Generating message...' : 'Draft Tailored Message'}
+                  <button className="btn btn-tertiary btn-sm" style={{ width: '100%', justifyContent: 'center' }} onClick={handleQuickOutreach} disabled={outreachLoading}>
+                    {outreachLoading ? 'Generating...' : 'Draft Tailored Message'}
                   </button>
                 )}
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {showRewriteStudio && (
+        <RewriteStudio
+          resumeText={resumeText}
+          jobDescription={jobDescription}
+          onClose={() => setShowRewriteStudio(false)}
+        />
       )}
     </div>
   );

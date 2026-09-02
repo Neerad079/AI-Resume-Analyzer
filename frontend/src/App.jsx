@@ -8,6 +8,9 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ResumesPage from './pages/ResumesPage';
 import AnalyzePage from './pages/AnalyzePage';
+import DiagnosePage from './pages/DiagnosePage';
+import BulletPolishPage from './pages/BulletPolishPage';
+import InterviewPrepPage from './pages/InterviewPrepPage';
 import OutreachPage from './pages/OutreachPage';
 import HistoryPage from './pages/HistoryPage';
 
@@ -60,6 +63,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AppLayout><AnalyzePage /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/diagnose"
+        element={
+          <ProtectedRoute>
+            <AppLayout><DiagnosePage /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/polish"
+        element={
+          <ProtectedRoute>
+            <AppLayout><BulletPolishPage /></AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/interview-prep"
+        element={
+          <ProtectedRoute>
+            <AppLayout><InterviewPrepPage /></AppLayout>
           </ProtectedRoute>
         }
       />

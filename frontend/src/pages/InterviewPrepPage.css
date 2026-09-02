@@ -1,0 +1,295 @@
+/* InterviewPrepPage.css */
+
+.ip-page { display: flex; flex-direction: column; gap: 2rem; }
+.ip-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ── Dossier card ── */
+.ip-dossier-card { display: flex; align-items: flex-start; gap: 2.5rem; flex-wrap: wrap; padding: 1.75rem 2rem; }
+.ip-dossier-left { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.ip-confidence {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.ip-conf-num { font-size: 2.5rem; font-weight: 800; color: var(--text-heading); letter-spacing: -0.05em; }
+.ip-conf-denom { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
+.ip-conf-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-left: 0.5rem; }
+
+.ip-dossier-right { display: flex; flex-direction: column; gap: 0.875rem; flex: 1; }
+
+.ip-primary-concern {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface-low);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-error);
+}
+
+/* ── Tabs ── */
+.ip-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0;
+}
+
+.ip-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+.ip-tab:hover { color: var(--text-primary); }
+.ip-tab-active { color: var(--text-heading); border-bottom-color: var(--color-primary); }
+
+.ip-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: var(--bg-surface-container);
+  color: var(--text-secondary);
+}
+.ip-tab-active .ip-tab-badge { background: var(--bg-surface-high); color: var(--text-primary); }
+
+/* ── Section intro ── */
+.ip-section-intro {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0.75rem;
+}
+
+/* ── Question cards ── */
+.ip-question-list, .ip-defense-list, .ip-threats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.ip-q-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  border-left-width: 4px;
+  background: var(--bg-card);
+}
+.ip-cat-achieve { border-left-color: var(--color-secondary); }
+.ip-cat-gap     { border-left-color: var(--color-error); }
+.ip-cat-depth   { border-left-color: var(--color-tertiary); }
+.ip-cat-fail    { border-left-color: #ef4444; }
+.ip-cat-culture { border-left-color: #a855f7; }
+.ip-cat-trap    { border-left-color: #f59e0b; }
+.ip-cat-default { border-left-color: var(--border-color); }
+
+.ip-q-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+.ip-q-header:hover { background: var(--bg-surface-low); }
+
+.ip-q-num {
+  min-width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-surface-container);
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ip-q-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ip-q-text {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.5;
+  text-align: left;
+}
+
+.ip-q-chevron { color: var(--text-muted); flex-shrink: 0; }
+
+.ip-q-detail {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.ip-q-row {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.ip-q-row:last-child { border-bottom: none; }
+.ip-q-row p { font-size: 0.8125rem; color: var(--text-primary); line-height: 1.6; }
+.ip-row-weak { background: rgba(186, 26, 26, 0.03); }
+.ip-row-strong { background: rgba(0, 110, 47, 0.03); }
+
+.ip-q-row-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* ── Defense cards ── */
+.ip-def-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-card);
+  border-left: 4px solid var(--color-tertiary);
+}
+
+.ip-def-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: background var(--transition-fast);
+}
+.ip-def-header:hover { background: var(--bg-surface-low); }
+.ip-def-header > span { flex: 1; }
+.ip-def-chevron { color: var(--text-muted); flex-shrink: 0; }
+
+.ip-def-body {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.ip-def-row {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ip-def-row:last-child { border-bottom: none; }
+.ip-def-row p { font-size: 0.8125rem; color: var(--text-primary); line-height: 1.6; }
+
+.ip-def-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 2px;
+}
+.ip-def-label.lead    { background: var(--bg-surface-high); color: var(--text-primary); }
+.ip-def-label.support { background: rgba(0, 110, 47, 0.12); color: var(--color-secondary); }
+.ip-def-label.defuse  { background: rgba(0, 142, 191, 0.12); color: var(--color-tertiary); }
+.ip-def-label.close   { background: var(--bg-surface-container); color: var(--text-secondary); }
+
+/* ── Threat cards ── */
+.ip-threat-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--color-error);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  background: var(--bg-card);
+}
+.ip-threat-claim {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-error);
+}
+.ip-threat-why {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.ip-threat-say {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* ── Results container ── */
+.ip-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .ip-dossier-card { gap: 1.25rem; }
+  .ip-tabs { gap: 0; }
+  .ip-tab { padding: 0.5rem 0.75rem; font-size: 0.8125rem; }
+}
