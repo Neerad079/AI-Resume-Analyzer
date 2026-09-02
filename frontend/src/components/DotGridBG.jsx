@@ -11,25 +11,17 @@ export default function DotGridBG() {
     let mouse = { x: -1000, y: -1000 };
 
     const updateSize = () => {
-      const container = canvas.parentElement;
-      const target = container?.parentElement || container;
-      if (target) {
-        canvas.width = target.offsetWidth || window.innerWidth;
-        canvas.height = target.offsetHeight || window.innerHeight;
-      }
+      // Use screen dimensions as fallback, avoid clientWidth scrollbar issue
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
-    const targetElem = canvas.parentElement?.parentElement || canvas.parentElement;
-    const resizeObserver = new ResizeObserver(updateSize);
-    if (targetElem) {
-      resizeObserver.observe(targetElem);
-    }
+    window.addEventListener('resize', updateSize);
     updateSize();
 
     const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
     };
 
     const handleMouseLeave = () => {
@@ -85,7 +77,7 @@ export default function DotGridBG() {
     render();
 
     return () => {
-      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateSize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
@@ -95,13 +87,11 @@ export default function DotGridBG() {
   return (
     <div
       style={{
-        position: 'absolute',
+        position: 'fixed',
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
-        width: '100%',
-        height: '100%',
+        width: '100vw',
+        height: '100vh',
         pointerEvents: 'none',
         zIndex: 0,
         overflow: 'hidden',
@@ -111,8 +101,10 @@ export default function DotGridBG() {
       <svg
         style={{
           position: 'absolute',
-          width: '100%',
-          height: '100%',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
           opacity: 0.18,
         }}
       >
@@ -130,8 +122,8 @@ export default function DotGridBG() {
           position: 'absolute',
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
+          width: '100vw',
+          height: '100vh',
           pointerEvents: 'none',
         }}
       />

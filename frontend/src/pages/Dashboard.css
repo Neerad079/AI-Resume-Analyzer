@@ -96,3 +96,28 @@
   border-color: var(--color-primary) !important;
   box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.08);
 }
+
+/* Responsive typography & layout for Hero */
+.hero-title {
+  font-size: clamp(2rem, 4.5vw, 3.5rem) !important;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-heading);
+  margin-bottom: 1.25rem;
+  word-break: break-word;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.9375rem, 1.4vw, 1.125rem) !important;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto 2.25rem;
+}
+
+@media (max-width: 768px) {
+  .logos-grid {
+    gap: 1.5rem !important;
+  }
+}

@@ -1,6 +1,14 @@
 /* BulletPolishPage.css */
 
-.bp-page  { display: flex; flex-direction: column; gap: 2rem; }
+.bp-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-md);
+}
 .bp-form  { display: flex; flex-direction: column; gap: 1.25rem; }
 
 /* ── Summary card ── */

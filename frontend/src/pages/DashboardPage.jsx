@@ -20,25 +20,25 @@ export default function DashboardPage() {
         flexDirection: 'column',
         minHeight: 'calc(100vh - 64px)',
         position: 'relative',
-        margin: 'calc(-1 * var(--space-md))',
         padding: '0',
+        width: '100%',
         background: 'transparent',
       }}
     >
       {/* Framer-style Dot Grid Animated Background covering the ENTIRE Dashboard Page */}
       <DotGridBG />
 
-      <main style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+      <main style={{ flex: 1, position: 'relative', zIndex: 1, width: '100%' }}>
         {/* Hero Section */}
         <section
           className="hero-section hero-section-relative"
           style={{
             textAlign: 'center',
-            padding: '5rem 1.5rem 3.5rem',
+            padding: '4rem 1.5rem 3rem',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justify: 'center',
+            justifyContent: 'center',
             background: 'transparent',
           }}
         >
@@ -47,12 +47,12 @@ export default function DashboardPage() {
               <span>AI-Powered Optimization</span>
             </div>
 
-            <h1 className="hero-title hero-title-anim" style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: '1.25rem' }}>
+            <h1 className="hero-title hero-title-anim">
               <span className="gradient-text-anim">Beat the ATS.</span><br />
               <span>Land the Interview.</span>
             </h1>
 
-            <p className="hero-subtitle hero-subtitle-anim" style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '640px', margin: '0 auto 2.25rem', lineHeight: 1.65 }}>
+            <p className="hero-subtitle hero-subtitle-anim">
               Stop guessing what hiring managers want. Our AI analyzes your resume against target job descriptions, uncovering missing keywords and formatting flaws instantly.
             </p>
 
