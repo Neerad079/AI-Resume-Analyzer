@@ -1,0 +1,190 @@
+/* BulletPolishPage.css */
+
+.bp-page  { display: flex; flex-direction: column; gap: 2rem; }
+.bp-form  { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ── Summary card ── */
+.bp-summary-card { display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap; padding: 1.5rem 2rem; }
+.bp-summary-left { display: flex; flex-direction: column; gap: 0.25rem; flex-shrink: 0; }
+
+.bp-avg-grade { display: flex; flex-direction: column; align-items: center; gap: 0.125rem; }
+.bp-avg-num {
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--text-heading);
+}
+.bp-avg-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.bp-summary-right { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.bp-stats { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.bp-stat-item { display: flex; flex-direction: column; align-items: center; gap: 0.125rem; }
+.bp-stat-grade {
+  font-size: 0.875rem;
+  font-weight: 800;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bp-stat-count { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); }
+
+/* ── Grade bar ── */
+.bp-grade-bar {
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+}
+.bp-grade-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Grade colors ── */
+.grade-s { background: var(--color-secondary); color: white; }
+.grade-a { background: var(--color-tertiary);  color: white; }
+.grade-b { background: #f59e0b;                color: white; }
+.grade-c { background: #ef4444;                color: white; }
+.grade-d { background: var(--color-error);     color: white; }
+
+/* ── Filters ── */
+.bp-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.bp-filters .chip {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+.bp-filter-active { opacity: 1; box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+
+/* ── Bullet cards ── */
+.bp-bullet-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.bp-bullet-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  border-left-width: 4px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+.bp-bullet-card.grade-s { border-left-color: var(--color-secondary); }
+.bp-bullet-card.grade-a { border-left-color: var(--color-tertiary); }
+.bp-bullet-card.grade-b { border-left-color: #f59e0b; }
+.bp-bullet-card.grade-c { border-left-color: #ef4444; }
+.bp-bullet-card.grade-d { border-left-color: var(--color-error); }
+
+.bp-bullet-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.bp-bullet-header:hover { background: var(--bg-surface-low); }
+
+.bp-grade-badge {
+  min-width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.bp-bullet-original {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.bp-grade-desc {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bp-bullet-detail {
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.bp-detail-row:last-child { border-bottom: none; }
+.bp-detail-row p { font-size: 0.8125rem; color: var(--text-primary); line-height: 1.6; flex: 1; }
+.bp-detail-row svg { flex-shrink: 0; margin-top: 2px; }
+
+.bp-row-issue   { background: rgba(186, 26, 26, 0.03); }
+.bp-row-rewrite { background: rgba(0, 110, 47, 0.03); }
+.bp-row-xyz     { background: rgba(0, 142, 191, 0.03); }
+
+/* ── Priority list ── */
+.bp-priority-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+.bp-priority-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.bp-pri-num {
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Results ── */
+.bp-results { display: flex; flex-direction: column; gap: 1.5rem; }
+
+@media (max-width: 768px) {
+  .bp-summary-card { gap: 1.5rem; }
+}

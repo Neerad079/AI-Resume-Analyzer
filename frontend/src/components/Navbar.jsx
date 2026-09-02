@@ -9,6 +9,9 @@ import {
   LogOut,
   Menu,
   X,
+  Stethoscope,
+  PenLine,
+  FlameKindling,
 } from 'lucide-react';
 import { useState } from 'react';
 import './Navbar.css';
@@ -24,11 +27,14 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { to: '/dashboard', icon: <LayoutDashboard size={17} />, label: 'Dashboard' },
-    { to: '/resumes', icon: <FileText size={17} />, label: 'My Resumes' },
-    { to: '/analyze', icon: <FileSearch size={17} />, label: 'Analyze' },
-    { to: '/outreach', icon: <Mail size={17} />, label: 'Outreach' },
-    { to: '/history', icon: <History size={17} />, label: 'History' },
+    { to: '/dashboard',     icon: <LayoutDashboard size={17} />, label: 'Dashboard' },
+    { to: '/resumes',       icon: <FileText size={17} />,        label: 'My Resumes' },
+    { to: '/analyze',       icon: <FileSearch size={17} />,      label: 'Recruiter Match' },
+    { to: '/diagnose',      icon: <Stethoscope size={17} />,     label: 'Diagnose' },
+    { to: '/polish',        icon: <PenLine size={17} />,         label: 'Polish Bullets' },
+    { to: '/interview-prep',icon: <FlameKindling size={17} />,   label: 'Interview Prep' },
+    { to: '/outreach',      icon: <Mail size={17} />,            label: 'Outreach' },
+    { to: '/history',       icon: <History size={17} />,         label: 'History' },
   ];
 
   return (

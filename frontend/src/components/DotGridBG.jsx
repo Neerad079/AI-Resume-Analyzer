@@ -11,16 +11,18 @@ export default function DotGridBG() {
     let mouse = { x: -1000, y: -1000 };
 
     const updateSize = () => {
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.offsetWidth;
-        canvas.height = parent.offsetHeight;
+      const container = canvas.parentElement;
+      const target = container?.parentElement || container;
+      if (target) {
+        canvas.width = target.offsetWidth || window.innerWidth;
+        canvas.height = target.offsetHeight || window.innerHeight;
       }
     };
 
+    const targetElem = canvas.parentElement?.parentElement || canvas.parentElement;
     const resizeObserver = new ResizeObserver(updateSize);
-    if (canvas.parentElement) {
-      resizeObserver.observe(canvas.parentElement);
+    if (targetElem) {
+      resizeObserver.observe(targetElem);
     }
     updateSize();
 

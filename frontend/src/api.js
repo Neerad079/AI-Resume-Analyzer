@@ -18,11 +18,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally
+// Handle 401 globally — but skip redirect for requests marked as optional
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !error.config?._skipAuthRedirect) {
       localStorage.removeItem('hireiq_token');
       localStorage.removeItem('hireiq_user');
       window.location.href = '/login';
@@ -40,7 +40,9 @@ export const authAPI = {
 
 // Resumes (Multi-Resume Profile)
 export const resumeAPI = {
-  list: () => api.get('/resumes'),
+  // list uses _skipAuthRedirect so a stale/missing token on optional pages
+  // (BulletPolish, InterviewPrep) doesn't forcibly redirect to /login
+  list: () => api.get('/resumes', { _skipAuthRedirect: true }),
   create: (data) => api.post('/resumes', data),
   update: (id, data) => api.put(`/resumes/${id}`, data),
   delete: (id) => api.delete(`/resumes/${id}`),
@@ -54,7 +56,11 @@ export const resumeAPI = {
 
 // Analysis
 export const analysisAPI = {
-  match: (data) => api.post('/analysis/match', data),
+  match:          (data) => api.post('/analysis/match',            data),
+  rewrite:        (data) => api.post('/analysis/rewrite',          data),
+  diagnose:       (data) => api.post('/analysis/diagnose',         data),
+  rewriteBullets: (data) => api.post('/analysis/rewrite/bullets',  data),
+  interviewPrep:  (data) => api.post('/analysis/interview-prep',   data),
 };
 
 // Outreach
