@@ -80,12 +80,12 @@ export default function LandingPage() {
               <span>AI-Powered Optimization</span>
             </div>
 
-            <h1 className="hero-title hero-title-anim" style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--text-heading)', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: '1.25rem' }}>
+            <h1 className="hero-title hero-title-anim">
               <span className="gradient-text-anim">Beat the ATS.</span><br />
               <span>Land the Interview.</span>
             </h1>
 
-            <p className="hero-subtitle hero-subtitle-anim" style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '640px', margin: '0 auto 2.25rem', lineHeight: 1.65 }}>
+            <p className="hero-subtitle hero-subtitle-anim">
               Stop guessing what hiring managers want. Our AI analyzes your resume against target job descriptions, uncovering missing keywords and formatting flaws instantly.
             </p>
 

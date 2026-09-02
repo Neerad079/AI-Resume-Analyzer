@@ -1,7 +1,15 @@
 /* DiagnosePage.css — matches existing HireIQ design language */
 
 /* ── Page layout ── */
-.dx-page { display: flex; flex-direction: column; gap: 2rem; }
+.dx-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-md);
+}
 
 .dx-form { display: flex; flex-direction: column; gap: 1.25rem; }
 

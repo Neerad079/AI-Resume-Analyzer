@@ -66,9 +66,22 @@ export default function Navbar() {
               <span>{link.label}</span>
             </NavLink>
           ))}
+
+          <div className="mobile-user-section">
+            <div className="user-info">
+              <div className="user-avatar">
+                {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+              <span className="user-name">{user?.fullName || 'User'}</span>
+            </div>
+            <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="mobile-logout-btn">
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
 
-        <div className={`navbar-user ${mobileOpen ? 'open' : ''}`}>
+        <div className="navbar-user desktop-user">
           <div className="user-info">
             <div className="user-avatar">
               {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
