@@ -9,6 +9,7 @@ Built for the **RazorPay AI BuildAthon — August 2026** by **Neerad S Ramesh**.
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![Claude AI](https://img.shields.io/badge/Claude_AI-Anthropic-D97706?style=flat-square&logo=anthropic&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat-square&logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
 ---
 
@@ -83,7 +84,7 @@ Instantly convert candidate strengths and job description context into recruiter
 | **Backend** | Spring Boot 3.3, Java 17 |
 | **AI Integration** | Anthropic Claude API / NVIDIA API |
 | **Database** | MySQL 8.0 (Docker container) |
-| **Security** | Spring Security + JWT |
+| **Security** | Spring Security + Google OAuth 2.0 + JWT |
 | **Frontend** | React 19 + Vite |
 | **Containerization** | Docker + Docker Compose |
 
@@ -98,7 +99,7 @@ AI Job Assistant/
 │   ├── Dockerfile
 │   └── src/main/java/com/hireiq/
 │       ├── HireIqApplication.java
-│       ├── config/             # JWT, Security, CORS
+│       ├── config/             # OAuth 2.0, JWT, Security, CORS
 │       ├── controller/         # REST endpoints
 │       ├── dto/                # Request/Response DTOs
 │       ├── exception/          # Global error handling
@@ -167,6 +168,8 @@ npm run dev
 | `MYSQL_USER` | `root` | MySQL username |
 | `MYSQL_PASSWORD` | `root` | MySQL password |
 | `JWT_SECRET` | *(required — set strong random string)* | JWT signing secret |
+| `GOOGLE_CLIENT_ID` | *(required for OAuth)* | Google OAuth 2.0 Client ID |
+| `GOOGLE_CLIENT_SECRET` | *(required for OAuth)* | Google OAuth 2.0 Client Secret |
 
 ---
 
@@ -176,11 +179,18 @@ npm run dev
 |--------|----------|------|-------------|
 | `POST` | `/api/auth/register` | ❌ | Create new user account |
 | `POST` | `/api/auth/login` | ❌ | Authenticate user & issue JWT |
+| `POST` | `/api/auth/google` | ❌ | Google OAuth 2.0 login & JWT issue |
 | `POST` | `/api/analysis/match` | ✅ | Analyze resume against job description |
 | `POST` | `/api/outreach/generate` | ✅ | Generate personalized outreach copy |
 | `GET` | `/api/history` | ✅ | Fetch user's saved analysis history |
 | `POST` | `/api/history` | ✅ | Save resume analysis result |
 | `DELETE` | `/api/history/{id}` | ✅ | Delete analysis entry |
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
 
 ---
 
