@@ -82,7 +82,7 @@ Instantly convert candidate strengths and job description context into recruiter
 | Layer | Technology |
 |-------|-----------|
 | **Backend** | Spring Boot 3.3, Java 17 |
-| **AI Integration** | Anthropic Claude API / NVIDIA API |
+| **AI Integration** | NVIDIA NIM (Nemotron 3 Super) / Anthropic Claude API |
 | **Database** | MySQL 8.0 (Docker container) |
 | **Security** | Spring Security + Google OAuth 2.0 + JWT |
 | **Frontend** | React 19 + Vite |
@@ -126,7 +126,19 @@ AI Job Assistant/
 - **Java 17+**
 - **Node.js 18+**
 - **Docker & Docker Compose** (for running MySQL 8.0)
-- **Anthropic / NVIDIA API Key**
+- **NVIDIA NIM API Key** (free — see below) or Anthropic API Key
+
+### 🔑 Getting a Free NVIDIA NIM API Key
+
+HireIQ uses **NVIDIA Nemotron 3 Super** via the NVIDIA NIM platform. You can get a free API key in under 2 minutes:
+
+1. Go to [build.nvidia.com](https://build.nvidia.com)
+2. Click **"Sign In / Sign Up"** and create a free NVIDIA account (or sign in with Google/GitHub)
+3. Once logged in, navigate to any NIM model page (e.g., search for **Nemotron 3 Super**)
+4. Click **"Get API Key"** in the top-right corner
+5. Generate a new key and copy it — this is your `NVIDIA_API_KEY`
+
+> **💡 Tip:** NVIDIA NIM provides **1,000 free API credits** on sign-up — no credit card required. This is more than enough for testing and development.
 
 ### 1. Start Database
 ```bash
@@ -137,8 +149,8 @@ docker compose up mysql -d
 ```bash
 cd backend
 
-# Set environment variables
-export CLAUDE_API_KEY=your-api-key-here
+# Set environment variables (use your NVIDIA NIM key)
+export NVIDIA_API_KEY=nvapi-your-key-here
 export MYSQL_PASSWORD=root
 
 # Build & run Spring Boot API
