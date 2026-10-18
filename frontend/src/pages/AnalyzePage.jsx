@@ -415,15 +415,6 @@ export default function AnalyzePage() {
               >
                 {saved ? <><Check size={16} /> Saved to Profile</> : saving ? 'Saving...' : <><Save size={16} /> Save to Profile</>}
               </button>
-              {!generatedOutreach && (
-                <button
-                  className="btn btn-tertiary btn-sm"
-                  onClick={handleQuickOutreach}
-                  disabled={outreachLoading}
-                >
-                  {outreachLoading ? 'Drafting...' : <><Mail size={15} /> Draft Outreach</>}
-                </button>
-              )}
             </div>
           </div>
 

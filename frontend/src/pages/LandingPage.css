@@ -174,20 +174,34 @@
   margin-bottom: 24px;
 }
 
-.logos-grid {
+.capabilities-grid {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 48px;
+  gap: 16px;
   flex-wrap: wrap;
-  opacity: 0.75;
 }
 
-.logo-item {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  letter-spacing: -0.02em;
+.capability-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  transition: all 0.2s ease;
+}
+
+.capability-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* How It Works */

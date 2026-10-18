@@ -80,7 +80,41 @@ public class AiService {
             JsonNode root = objectMapper.readTree(responseJson);
             JsonNode choices = root.get("choices");
             if (choices != null && choices.isArray() && !choices.isEmpty()) {
-                return choices.get(0).get("message").get("content").asText();
+                JsonNode choice0 = choices.get(0);
+                JsonNode message = choice0.get("message");
+                String content = null;
+
+                String finishReason = (choice0 != null && choice0.has("finish_reason")) ? choice0.get("finish_reason").asText() : "unknown";
+
+                if (message != null) {
+                    JsonNode contentNode = message.get("content");
+                    if (contentNode != null && !contentNode.isNull()) {
+                        String txt = contentNode.asText();
+                        if (txt != null && !txt.isBlank() && !"null".equalsIgnoreCase(txt.trim())) {
+                            content = txt;
+                        }
+                    }
+
+                    // Fallback: If content is null, check reasoning_content (models like Nemotron/DeepSeek)
+                    // Only run when not truncated by token limit (finish_reason != "length")
+                    if (content == null && !"length".equalsIgnoreCase(finishReason)) {
+                        JsonNode reasoningNode = message.get("reasoning_content");
+                        if (reasoningNode != null && !reasoningNode.isNull()) {
+                            String rTxt = reasoningNode.asText();
+                            if (rTxt != null && !rTxt.isBlank() && !"null".equalsIgnoreCase(rTxt.trim())) {
+                                log.warn("AI content was empty; falling back to reasoning_content");
+                                content = rTxt;
+                            }
+                        }
+                    }
+                }
+
+                if (content != null) {
+                    return content;
+                }
+
+                log.error("AI response had no usable content (finish_reason={}): {}", finishReason, responseJson);
+                throw new RuntimeException("AI response was empty (finish_reason: " + finishReason + "). The prompt may have exceeded token limits.");
             }
 
             throw new RuntimeException("AI service returned an unexpected response structure: " + responseJson);

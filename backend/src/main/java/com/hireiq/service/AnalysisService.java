@@ -113,17 +113,21 @@ public class AnalysisService {
 
             You MUST respond with ONLY valid JSON (no markdown, no explanation outside JSON) in this exact format:
             {
+              "overallBulletGrade": "<D | C | B | A | S>",
+              "criticalSummary": "<2-3 sentence executive assessment of bullet quality and overall impact>",
+              "topPriorityActions": ["Action 1 (most critical)", "Action 2", "Action 3"],
               "triageResults": [
                 {
                   "original": "<original bullet verbatim>",
                   "grade": "<D | C | B | A | S>",
                   "gradeLabel": "<Duty Dump | Action Without Impact | Result Without Method | Near-Formula | X-Y-Z Compliant>",
                   "problem": "<one sentence: exactly why this bullet fails>",
-                  "rewritten": "<new bullet using X-Y-Z formula>",
+                  "rewritten": "<new bullet using X-Y-Z formula: Accomplished [X], as measured by [Y], by doing [Z]>",
                   "achievementX": "<what was accomplished>",
                   "metricY": "<the measurable result or [~X%] placeholder>",
                   "methodZ": "<one crisp clause explaining how>",
-                  "metricsNeeded": "<null if metrics present, otherwise prompt like: To strengthen this bullet: How many users? What was before/after time?>"
+                  "metricsNeeded": "<null if metrics present, otherwise prompt like: To strengthen this bullet: How many users? What was before/after time?>",
+                  "xyzFormula": "Accomplished [<what>], as measured by [<metric>], by doing [<method>]"
                 }
               ],
               "verbUpgradeBank": [
@@ -140,13 +144,16 @@ public class AnalysisService {
             }
 
             Rules:
-            - CRITICAL: In JSON string values, use \\n for line breaks instead of literal newlines.
-            - Grade every bullet before rewriting: D=Duty Dump, C=Action Without Impact, B=Result Without Method, A=Near-Formula, S=Already strong
-            - If grade is S, set rewritten = original and note it's already strong in "problem" field
-            - Never fabricate metrics — use placeholders like [~X%] or [$Xk-$Xm] when numbers unavailable
-            - Lead rewrites with power verbs: Architected, Drove, Spearheaded, Engineered, Reduced, Scaled, Launched
-            - Purge all filler: "responsible for", "assisted", "helped", "worked on", "various", "several"
-            - verbUpgradeBank: only include verbs the user actually used that were weak
+            - CRITICAL: Extract and audit the top 6 to 10 most impactful or weakest bullet points from the resume. If the text has fewer than 6 bullets, audit all of them.
+            - CRITICAL: Keep all strings concise and punchy so the complete JSON object finishes cleanly within token limits.
+            - In JSON string values, use \\n for line breaks instead of literal newlines.
+            - overallBulletGrade: Overall weighted grade across all bullets (S, A, B, C, or D).
+            - Grade every bullet before rewriting: D=Duty Dump, C=Action Without Impact, B=Result Without Method, A=Near-Formula, S=Already strong.
+            - If grade is S, set rewritten = original and note it's already strong in "problem" field.
+            - Never fabricate metrics — use placeholders like [~X%] or [$Xk-$Xm] when numbers unavailable.
+            - Lead rewrites with power verbs: Architected, Drove, Spearheaded, Engineered, Reduced, Scaled, Launched.
+            - Purge all filler: "responsible for", "assisted", "helped", "worked on", "various", "several".
+            - verbUpgradeBank: only include verbs the user actually used that were weak.
             """;
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -303,58 +310,152 @@ public class AnalysisService {
             String jsonContent = extractJson(aiResponse);
             ObjectMapper mapper = buildMapper();
 
+            BulletRewriteResponse response = null;
+
             // Pass 1: Try direct deserialization
             try {
-                return mapper.readValue(jsonContent, BulletRewriteResponse.class);
+                response = mapper.readValue(jsonContent, BulletRewriteResponse.class);
             } catch (Exception parseEx) {
                 log.warn("Direct BulletRewriteResponse parse failed ({}), trying manual map extraction", parseEx.getMessage());
             }
 
-            // Pass 2: Manual map extraction
-            Map<String, Object> parsed = mapper.readValue(jsonContent, new TypeReference<>() {});
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> rawBullets = (List<Map<String, Object>>) parsed.getOrDefault("triageResults", List.of());
-            List<BulletRewriteResponse.BulletAnalysis> bullets = rawBullets.stream().map(b ->
-                    BulletRewriteResponse.BulletAnalysis.builder()
-                            .original((String) b.getOrDefault("original", ""))
-                            .grade((String) b.getOrDefault("grade", "C"))
+            // Pass 2: Manual map extraction fallback if needed
+            if (response == null || response.getTriageResults() == null || response.getTriageResults().isEmpty()) {
+                Map<String, Object> parsed = mapper.readValue(jsonContent, new TypeReference<>() {});
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> rawBullets = (List<Map<String, Object>>) parsed.getOrDefault("triageResults",
+                        parsed.getOrDefault("bullets",
+                        parsed.getOrDefault("results",
+                        parsed.getOrDefault("rewrites",
+                        parsed.getOrDefault("bulletAnalysis", List.of())))));
+
+                List<BulletRewriteResponse.BulletAnalysis> bullets = rawBullets.stream().map(b -> {
+                    String orig = (String) b.getOrDefault("original", b.getOrDefault("bullet", ""));
+                    String gr = (String) b.getOrDefault("grade", b.getOrDefault("rating", "C"));
+                    String prob = (String) b.getOrDefault("problem", b.getOrDefault("issue", b.getOrDefault("feedback", "")));
+                    String rew = (String) b.getOrDefault("rewritten", b.getOrDefault("rewrite", b.getOrDefault("suggested", "")));
+                    String achX = (String) b.getOrDefault("achievementX", "");
+                    String metY = (String) b.getOrDefault("metricY", "");
+                    String methZ = (String) b.getOrDefault("methodZ", "");
+                    String xyz = (String) b.getOrDefault("xyzFormula", null);
+                    if (xyz == null && (!achX.isBlank() || !metY.isBlank() || !methZ.isBlank())) {
+                        xyz = String.format("Accomplished [%s], as measured by [%s], by doing [%s]", achX, metY, methZ);
+                    }
+                    return BulletRewriteResponse.BulletAnalysis.builder()
+                            .original(orig)
+                            .grade(gr != null ? gr.toUpperCase().trim() : "C")
                             .gradeLabel((String) b.getOrDefault("gradeLabel", ""))
-                            .problem((String) b.getOrDefault("problem", (String) b.get("issue")))
-                            .rewritten((String) b.getOrDefault("rewritten", ""))
-                            .achievementX((String) b.getOrDefault("achievementX", ""))
-                            .metricY((String) b.getOrDefault("metricY", ""))
-                            .methodZ((String) b.getOrDefault("methodZ", ""))
+                            .problem(prob)
+                            .rewritten(rew)
+                            .achievementX(achX)
+                            .metricY(metY)
+                            .methodZ(methZ)
                             .metricsNeeded((String) b.getOrDefault("metricsNeeded", null))
-                            .build()
-            ).toList();
+                            .xyzFormula(xyz)
+                            .build();
+                }).toList();
 
-            @SuppressWarnings("unchecked")
-            Map<String, Object> impactRaw = (Map<String, Object>) parsed.getOrDefault("impactSummary", Map.of());
+                @SuppressWarnings("unchecked")
+                Map<String, Object> impactRaw = (Map<String, Object>) parsed.getOrDefault("impactSummary", Map.of());
+                String overallGrade = (String) parsed.getOrDefault("overallBulletGrade", null);
 
-            String overallGrade = (String) parsed.getOrDefault("overallBulletGrade", null);
-            if (overallGrade == null && !bullets.isEmpty()) {
-                // calculate average grade if missing
-                overallGrade = bullets.get(0).getGrade();
+                response = BulletRewriteResponse.builder()
+                        .overallBulletGrade(overallGrade)
+                        .criticalSummary((String) parsed.getOrDefault("criticalSummary", null))
+                        .topPriorityActions(toStringList(parsed.getOrDefault("topPriorityActions", parsed.get("actions"))))
+                        .triageResults(bullets)
+                        .verbUpgradeBank(List.of())
+                        .impactSummary(BulletRewriteResponse.ImpactSummary.builder()
+                                .bulletsTotal(((Number) impactRaw.getOrDefault("bulletsTotal", bullets.size())).intValue())
+                                .bulletsUpgraded(((Number) impactRaw.getOrDefault("bulletsUpgraded", bullets.size())).intValue())
+                                .metricsAdded(((Number) impactRaw.getOrDefault("metricsAdded", bullets.size())).intValue())
+                                .powerVerbsIntroduced(toStringList(impactRaw.get("powerVerbsIntroduced")))
+                                .estimatedAtsDensityImprovement((String) impactRaw.getOrDefault("estimatedAtsDensityImprovement", "High"))
+                                .build())
+                        .build();
             }
 
-            return BulletRewriteResponse.builder()
-                    .overallBulletGrade(overallGrade != null ? overallGrade : "B")
-                    .criticalSummary((String) parsed.getOrDefault("criticalSummary", "Bullet points analyzed for X-Y-Z impact."))
-                    .topPriorityActions(toStringList(parsed.get("topPriorityActions")))
-                    .triageResults(bullets)
-                    .verbUpgradeBank(List.of())
-                    .impactSummary(BulletRewriteResponse.ImpactSummary.builder()
-                            .bulletsTotal(((Number) impactRaw.getOrDefault("bulletsTotal", bullets.size())).intValue())
-                            .bulletsUpgraded(((Number) impactRaw.getOrDefault("bulletsUpgraded", bullets.size())).intValue())
-                            .metricsAdded(((Number) impactRaw.getOrDefault("metricsAdded", bullets.size())).intValue())
-                            .powerVerbsIntroduced(toStringList(impactRaw.get("powerVerbsIntroduced")))
-                            .estimatedAtsDensityImprovement((String) impactRaw.getOrDefault("estimatedAtsDensityImprovement", "High"))
-                            .build())
-                    .build();
+            // Post-processing: Guarantee non-null fields, clean grades, and synthesize xyzFormula
+            if (response.getTriageResults() == null) {
+                response.setTriageResults(new java.util.ArrayList<>());
+            } else {
+                for (BulletRewriteResponse.BulletAnalysis b : response.getTriageResults()) {
+                    if (b.getGrade() != null) {
+                        String g = b.getGrade().toUpperCase().trim();
+                        if (g.length() > 1) g = g.substring(0, 1);
+                        if (!List.of("S", "A", "B", "C", "D").contains(g)) g = "C";
+                        b.setGrade(g);
+                    } else {
+                        b.setGrade("C");
+                    }
+                    if (b.getXyzFormula() == null && (b.getAchievementX() != null || b.getMetricY() != null || b.getMethodZ() != null)) {
+                        b.setXyzFormula(String.format("Accomplished [%s], as measured by [%s], by doing [%s]",
+                                b.getAchievementX() != null ? b.getAchievementX() : "...",
+                                b.getMetricY() != null ? b.getMetricY() : "...",
+                                b.getMethodZ() != null ? b.getMethodZ() : "..."));
+                    }
+                }
+            }
+
+            if (response.getOverallBulletGrade() == null || response.getOverallBulletGrade().isBlank()) {
+                if (response.getTriageResults() != null && !response.getTriageResults().isEmpty()) {
+                    if (response.getTriageResults().size() == 1) {
+                        response.setOverallBulletGrade(response.getTriageResults().get(0).getGrade());
+                    } else {
+                        double sum = 0.0;
+                        for (BulletRewriteResponse.BulletAnalysis b : response.getTriageResults()) {
+                            sum += switch (b.getGrade() != null ? b.getGrade() : "C") {
+                                case "S" -> 4.0;
+                                case "A" -> 3.0;
+                                case "B" -> 2.0;
+                                case "C" -> 1.0;
+                                case "D" -> 0.0;
+                                default -> 1.0;
+                            };
+                        }
+                        double mean = sum / response.getTriageResults().size();
+                        int rounded = (int) Math.round(mean);
+                        String calculatedGrade = switch (rounded) {
+                            case 4 -> "S";
+                            case 3 -> "A";
+                            case 2 -> "B";
+                            case 1 -> "C";
+                            default -> "D";
+                        };
+                        response.setOverallBulletGrade(calculatedGrade);
+                    }
+                } else {
+                    response.setOverallBulletGrade("B");
+                }
+            } else {
+                String g = response.getOverallBulletGrade().toUpperCase().trim();
+                if (g.length() > 1) g = g.substring(0, 1);
+                if (!List.of("S", "A", "B", "C", "D").contains(g)) g = "B";
+                response.setOverallBulletGrade(g);
+            }
+
+            if (response.getTriageResults() == null || response.getTriageResults().isEmpty()) {
+                throw new IllegalStateException("AI response contained no bullet triage results");
+            }
+
+            if (response.getCriticalSummary() == null || response.getCriticalSummary().isBlank()) {
+                response.setCriticalSummary(String.format("Audited %d resume bullet points using the Google X-Y-Z formula for measurable impact.",
+                        response.getTriageResults().size()));
+            }
+
+            if (response.getTopPriorityActions() == null || response.getTopPriorityActions().isEmpty()) {
+                response.setTopPriorityActions(List.of(
+                        "Replace passive duty statements with quantifiable impact metrics",
+                        "Adopt Google's Accomplished [X], as measured by [Y], by doing [Z] structure",
+                        "Lead every achievement with a decisive action verb"
+                ));
+            }
+
+            return response;
 
         } catch (Exception e) {
             log.error("Failed to parse Rewriter AI response: {}", aiResponse, e);
-            throw new RuntimeException("Failed to parse AI response", e);
+            throw new RuntimeException("Failed to parse AI response: " + e.getMessage(), e);
         }
     }
 
@@ -467,10 +568,22 @@ public class AnalysisService {
      * Handles markdown code fences (```json ... ```) and stray text around the JSON.
      */
     private String extractJson(String text) {
-        if (text == null || text.isBlank()) return "{}";
+        if (text == null || text.isBlank() || "null".equalsIgnoreCase(text.trim())) return "{}";
+
+        // Strip thinking/reasoning tags (<think>...</think>) from reasoning models
+        String cleaned = text.replaceAll("(?s)<think>.*?</think>", "").trim();
 
         // Strip markdown code fences (```json ... ``` or ``` ... ```)
-        String cleaned = text.replaceAll("(?s)```(?:json)?\\s*", "").trim();
+        cleaned = cleaned.replaceAll("(?s)```(?:json)?\\s*", "").trim();
+
+        // If response is a top-level JSON array [ ... ], wrap into {"triageResults": [...]}
+        if (cleaned.startsWith("[")) {
+            int lastBracket = cleaned.lastIndexOf(']');
+            if (lastBracket > 0) {
+                String arrayContent = cleaned.substring(0, lastBracket + 1);
+                return "{\"triageResults\":" + arrayContent + "}";
+            }
+        }
 
         // Find balanced braces — walk char by char to find outermost { }
         int start = -1;
@@ -492,9 +605,11 @@ public class AnalysisService {
 
         // Fallback: simple first-last brace slice
         int firstBrace = cleaned.indexOf('{');
-        int lastBrace  = cleaned.lastIndexOf('}');
-        if (firstBrace != -1 && lastBrace > firstBrace) {
-            return cleaned.substring(firstBrace, lastBrace + 1);
+        if (firstBrace != -1) {
+            int lastBrace  = cleaned.lastIndexOf('}');
+            if (lastBrace > firstBrace) {
+                return cleaned.substring(firstBrace, lastBrace + 1);
+            }
         }
 
         log.error("No JSON braces found in AI output. Output was:\n{}", text);

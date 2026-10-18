@@ -116,8 +116,42 @@
   margin: 0 auto 2.25rem;
 }
 
+.capabilities-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.capability-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  transition: all 0.2s ease;
+}
+
+.capability-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
 @media (max-width: 768px) {
-  .logos-grid {
-    gap: 1.5rem !important;
+  .capabilities-grid {
+    gap: 10px;
+  }
+  .capability-chip {
+    font-size: 0.8125rem;
+    padding: 8px 14px;
   }
 }

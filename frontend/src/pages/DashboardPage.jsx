@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, UploadCloud, FileSearch, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, UploadCloud, FileSearch, CheckCircle2, Sparkles, Cpu, ShieldCheck, Zap } from 'lucide-react';
 import DotGridBG from '../components/DotGridBG';
 import './Dashboard.css';
 
@@ -64,7 +64,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Social Proof Logos */}
+        {/* Key Capabilities */}
         <section
           className="social-proof hero-section-relative"
           style={{
@@ -77,15 +77,26 @@ export default function DashboardPage() {
           }}
         >
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <p className="social-proof-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem' }}>
-              Trusted by professionals hired at
+            <p className="social-proof-label" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '1.25rem' }}>
+              Engineered with Modern Hiring Intelligence
             </p>
-            <div className="logos-grid" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '3.5rem', opacity: 0.75 }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Google</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Microsoft</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Amazon</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Netflix</span>
-              <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '-0.03em' }}>Meta</span>
+            <div className="capabilities-grid">
+              <div className="capability-chip">
+                <Sparkles size={16} color="var(--color-primary)" />
+                <span>Google X-Y-Z Formula</span>
+              </div>
+              <div className="capability-chip">
+                <Cpu size={16} color="var(--color-primary)" />
+                <span>ATS Parsing Engine</span>
+              </div>
+              <div className="capability-chip">
+                <ShieldCheck size={16} color="var(--color-primary)" />
+                <span>Recruiter Intelligence</span>
+              </div>
+              <div className="capability-chip">
+                <Zap size={16} color="var(--color-primary)" />
+                <span>Real-time Tailoring</span>
+              </div>
             </div>
           </div>
         </section>

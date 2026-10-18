@@ -178,8 +178,23 @@ export default function BulletPolishPage() {
     setTimeout(() => setCopiedBullet(null), 2000);
   };
 
-  // Backend returns 'triageResults' (BulletRewriteResponse.triageResults)
-  const bullets = result?.triageResults || [];
+  // Backend returns 'triageResults' (BulletRewriteResponse.triageResults) or 'bullets'
+  const rawBullets = Array.isArray(result) ? result : (result?.triageResults || result?.bullets || []);
+  const bullets = rawBullets.map((b) => {
+    const rawGrade = (b.grade || 'C').toUpperCase().trim().charAt(0);
+    const grade = ['S', 'A', 'B', 'C', 'D'].includes(rawGrade) ? rawGrade : 'C';
+    const xyz = b.xyzFormula || (b.achievementX || b.metricY || b.methodZ
+      ? `Accomplished [${b.achievementX || '...'}], as measured by [${b.metricY || '...'}], by doing [${b.methodZ || '...'}]`
+      : null);
+    return {
+      ...b,
+      grade,
+      original: b.original || b.bullet || '',
+      rewritten: b.rewritten || b.rewrite || '',
+      problem: b.problem || b.issue || '',
+      xyzFormula: xyz,
+    };
+  });
   const grades = bullets.reduce((acc, b) => { acc[b.grade] = (acc[b.grade] || 0) + 1; return acc; }, {});
   const displayed = filterGrade === 'all' ? bullets : bullets.filter(b => b.grade === filterGrade);
 
