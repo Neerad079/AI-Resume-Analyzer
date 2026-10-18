@@ -1,14 +1,14 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
     name: hireiq-backend
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3308/hireiq?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${MYSQL_USER:root}
-    password: ${MYSQL_PASSWORD:root}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQLHOST:${MYSQL_HOST:localhost}}:${MYSQLPORT:${MYSQL_PORT:3308}}/${MYSQLDATABASE:${MYSQL_DATABASE:${MYSQL_DB:hireiq}}}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${MYSQLUSER:${MYSQL_USER:root}}
+    password: ${MYSQLPASSWORD:${MYSQL_PASSWORD:root}}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -53,6 +53,22 @@ google:
   client-id: ${GOOGLE_CLIENT_ID:}
   client-secret: ${GOOGLE_CLIENT_SECRET:}
 
+# Frontend URL
+app:
+  frontend-url: ${FRONTEND_URL:}
+
 # CORS
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+# Actuator Health & Probes
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true

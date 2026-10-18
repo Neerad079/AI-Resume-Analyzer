@@ -1,11 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { ArrowRight, UploadCloud, FileSearch, CheckCircle2 } from 'lucide-react';
 import DotGridBG from '../components/DotGridBG';
 import './Dashboard.css';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleStartAnalysis = () => {

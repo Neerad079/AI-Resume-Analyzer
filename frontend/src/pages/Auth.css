@@ -22,7 +22,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: 2.25rem 2rem;
+  padding: 2.25rem clamp(1rem, 5vw, 2rem);
   position: relative;
   z-index: 1;
   box-shadow: var(--shadow-glass);
@@ -163,3 +163,13 @@
 .auth-link:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 360px) {
+  .auth-page {
+    padding: 1rem 0.5rem;
+  }
+  .auth-container {
+    padding: 1.5rem 0.875rem;
+  }
+}
+

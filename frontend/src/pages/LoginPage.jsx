@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { authAPI } from '../api';
+import { authAPI, getBackendBaseUrl } from '../api';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import './Auth.css';
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
   }, [searchParams, login, navigate]);
 
   const handleSpringOAuth2Login = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+    window.location.href = `${getBackendBaseUrl()}/oauth2/authorization/google`;
   };
 
   const handleSubmit = async (e) => {

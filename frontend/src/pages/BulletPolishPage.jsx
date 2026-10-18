@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { analysisAPI, resumeAPI } from '../api';
+import { analysisAPI, resumeAPI, historyAPI } from '../api';
 import {
-  PenLine, UploadCloud, RotateCcw, ArrowRight,
-  TrendingUp, AlertTriangle, CheckCircle, Zap, Copy, Check
+  PenLine, UploadCloud, RotateCcw,
+  TrendingUp, AlertTriangle, CheckCircle, Copy, Check, Save, Zap
 } from 'lucide-react';
 import './BulletPolishPage.css';
 
@@ -12,6 +12,14 @@ const GRADE_CONFIG = {
   B: { label: 'B — Decent',   cls: 'grade-b', desc: 'Rewrite recommended.' },
   C: { label: 'C — Weak',     cls: 'grade-c', desc: 'Must rewrite.' },
   D: { label: 'D — Critical', cls: 'grade-d', desc: 'Delete or completely rebuild.' },
+};
+
+const GRADE_SCORES = {
+  S: 95,
+  A: 85,
+  B: 75,
+  C: 60,
+  D: 40,
 };
 
 function GradeBar({ grades }) {
@@ -85,6 +93,8 @@ export default function BulletPolishPage() {
   const [loading, setLoading]               = useState(false);
   const [result, setResult]                 = useState(null);
   const [error, setError]                   = useState('');
+  const [saving, setSaving]                 = useState(false);
+  const [saved, setSaved]                   = useState(false);
   const [dragActive, setDragActive]         = useState(false);
   const [savedResumes, setSavedResumes]     = useState([]);
   const [selectedId, setSelectedId]         = useState('');
@@ -127,13 +137,39 @@ export default function BulletPolishPage() {
   const handleDrop = e => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files?.[0]) handleFileUpload(e.dataTransfer.files[0]); };
 
   const handleSubmit = async e => {
-    e.preventDefault(); setError(''); setResult(null); setLoading(true); setFilterGrade('all');
+    e.preventDefault(); setError(''); setResult(null); setLoading(true); setFilterGrade('all'); setSaved(false);
     try {
       const res = await analysisAPI.rewriteBullets({ resumeText, jobDescription: jobDescription || undefined });
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Polish failed. Please try again.');
     } finally { setLoading(false); }
+  };
+
+  const handleSave = async () => {
+    if (!result) return;
+    setSaving(true);
+    setError('');
+    try {
+      const activeResume = savedResumes.find(r => String(r.id) === String(selectedId));
+      await historyAPI.saveResult({
+        resumeId: (selectedId && selectedId !== 'custom') ? Number(selectedId) : null,
+        resumeTitle: activeResume?.title || 'Resume Profile',
+        resumeText,
+        toolType: 'POLISH_BULLETS',
+        jobTitle: jobDescription ? 'Tailored Bullet Audit' : 'General Bullet Audit',
+        jobDescription,
+        score: (result.overallImpactScore !== undefined && result.overallImpactScore !== null)
+          ? Number(result.overallImpactScore)
+          : (result.overallBulletGrade ? (GRADE_SCORES[result.overallBulletGrade.toUpperCase()] ?? null) : null),
+        resultData: result,
+      });
+      setSaved(true);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save bullet polish to history profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCopy = (text, key) => {
@@ -192,7 +228,7 @@ export default function BulletPolishPage() {
           <button type="submit" className="btn btn-primary btn-lg" disabled={loading || !resumeText} id="bp-submit">
             {loading ? <><div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Auditing bullets...</> : <><PenLine size={18} /> Polish My Bullets</>}
           </button>
-          {result && <button type="button" className="btn btn-outline" onClick={() => { setResult(null); setError(''); }}><RotateCcw size={16} /> Reset</button>}
+          {result && <button type="button" className="btn btn-outline" onClick={() => { setResult(null); setError(''); setSaved(false); }}><RotateCcw size={16} /> Reset</button>}
         </div>
       </form>
 
@@ -206,6 +242,18 @@ export default function BulletPolishPage() {
 
       {result && (
         <div className="bp-results animate-slide-up">
+          {/* Action Bar */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', gap: '0.75rem' }}>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={handleSave}
+              disabled={saving || saved}
+            >
+              {saved ? <><Check size={16} /> Saved to Profile</> : saving ? 'Saving...' : <><Save size={16} /> Save to Profile</>}
+            </button>
+          </div>
+
           {/* Score header */}
           <div className="bp-summary-card glass-panel">
             <div className="bp-summary-left">

@@ -24,7 +24,7 @@ public class Resume {
     @Column(nullable = false, length = 150)
     private String title;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "LONGTEXT", nullable = false)
     private String resumeText;
 
     private boolean isDefault;
@@ -33,6 +33,13 @@ public class Resume {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "resume", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private java.util.List<SavedToolResult> savedResults = new java.util.ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

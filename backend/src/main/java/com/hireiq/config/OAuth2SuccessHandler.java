@@ -17,7 +17,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +30,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @org.springframework.beans.factory.annotation.Value("${app.frontend-url:}")
+    private String configuredFrontendUrl;
+
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:http://localhost:5173,http://localhost:3000}")
+    private String allowedOriginsStr;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
@@ -56,8 +65,48 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String jwtToken = jwtService.generateToken(user);
 
+        List<String> allowedList = Arrays.stream(allowedOriginsStr.split(","))
+                .map(String::trim)
+                .map(s -> s.replaceAll("/+$", ""))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        String frontendBaseUrl = null;
+        if (configuredFrontendUrl != null && !configuredFrontendUrl.isBlank()) {
+            frontendBaseUrl = configuredFrontendUrl.replaceAll("/+$", "");
+        } else {
+            String origin = request.getHeader("Origin");
+            if (origin == null || origin.isBlank()) {
+                String referer = request.getHeader("Referer");
+                if (referer != null && !referer.contains("accounts.google.com") && !referer.contains("google.com")) {
+                    origin = referer;
+                }
+            }
+            if (origin != null && !origin.isBlank()) {
+                try {
+                    java.net.URI uri = java.net.URI.create(origin);
+                    String candidate = (uri.getScheme() + "://" + uri.getAuthority()).replaceAll("/+$", "");
+                    if (allowedList.contains(candidate)) {
+                        frontendBaseUrl = candidate;
+                    }
+                } catch (Exception ignored) {}
+            }
+            if (frontendBaseUrl == null || frontendBaseUrl.isBlank()) {
+                for (String allowed : allowedList) {
+                    if (!allowed.contains("*")) {
+                        frontendBaseUrl = allowed;
+                        break;
+                    }
+                }
+            }
+            if (frontendBaseUrl == null || frontendBaseUrl.isBlank()) {
+                frontendBaseUrl = "http://localhost:5173";
+            }
+        }
+
         String targetUrl = String.format(
-                "http://localhost:5173/login?token=%s&email=%s&name=%s&userId=%s",
+                "%s/login?token=%s&email=%s&name=%s&userId=%s",
+                frontendBaseUrl,
                 URLEncoder.encode(jwtToken, StandardCharsets.UTF_8),
                 URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8),
                 URLEncoder.encode(user.getFullName(), StandardCharsets.UTF_8),

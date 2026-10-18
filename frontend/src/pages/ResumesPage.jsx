@@ -4,7 +4,6 @@ import {
   FileText,
   Plus,
   Trash2,
-  CheckCircle,
   Star,
   Edit2,
   Save,

@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const rawApiBase = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+export const API_BASE = rawApiBase.replace(/\/+$/, '');
+
+export const getBackendBaseUrl = () => {
+  return API_BASE.replace(/\/api\/?$/, '');
+};
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -57,7 +62,6 @@ export const resumeAPI = {
 // Analysis
 export const analysisAPI = {
   match:          (data) => api.post('/analysis/match',            data),
-  rewrite:        (data) => api.post('/analysis/rewrite',          data),
   diagnose:       (data) => api.post('/analysis/diagnose',         data),
   rewriteBullets: (data) => api.post('/analysis/rewrite/bullets',  data),
   interviewPrep:  (data) => api.post('/analysis/interview-prep',   data),
@@ -68,11 +72,19 @@ export const outreachAPI = {
   generate: (data) => api.post('/outreach/generate', data),
 };
 
-// History
+// History (Consolidated Profile History & Legacy Fallback)
 export const historyAPI = {
-  list: (page = 0, size = 10) => api.get(`/history?page=${page}&size=${size}`),
-  save: (data) => api.post('/history', data),
-  delete: (id) => api.delete(`/history/${id}`),
+  // Profiles-based history
+  getProfiles:   () => api.get('/history/profiles'),
+  getProfile:    (resumeId) => api.get(`/history/profiles/${resumeId}`),
+  saveResult:    (data) => api.post('/history/save', data),
+  deleteResult:  (resultId) => api.delete(`/history/results/${resultId}`),
+  deleteProfile: (resumeId) => api.delete(`/history/profiles/${resumeId}`),
+
+  // Legacy analysis_history endpoints
+  list:          (page = 0, size = 10) => api.get(`/history?page=${page}&size=${size}`),
+  save:          (data) => api.post('/history', data),
+  delete:        (id) => api.delete(`/history/${id}`),
 };
 
 export default api;

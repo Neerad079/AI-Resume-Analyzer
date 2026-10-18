@@ -108,6 +108,7 @@ html {
   font-size: 16px;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 body {
@@ -116,12 +117,25 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   min-height: 100vh;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+p, span, h1, h2, h3, h4, h5, h6, li {
+  overflow-wrap: break-word;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 a {
@@ -595,4 +609,66 @@ h3 {
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
 }
+
+/* ════════════════════════════════════════
+   Mobile & Responsive Enhancements (320px - 768px)
+   ════════════════════════════════════════ */
+@media (max-width: 640px) {
+  :root {
+    --space-md: 16px;
+    --space-lg: 32px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    line-height: 2.125rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.625rem;
+  }
+
+  .glass-card,
+  .glass-panel {
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .page-header {
+    padding-bottom: 1rem;
+  }
+
+  .diff-box {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 400px) {
+  :root {
+    --space-md: 12px;
+  }
+
+  .btn {
+    padding: 0 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
 

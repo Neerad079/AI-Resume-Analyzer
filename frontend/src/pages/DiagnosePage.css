@@ -240,7 +240,26 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .dx-scores-header { gap: 1.5rem; }
+  .dx-scores-header { gap: 1.5rem; justify-content: center; }
   .dx-scores-divider { display: none; }
   .dx-two-col { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 480px) {
+  .dx-page {
+    padding: 1rem 0.75rem;
+  }
+  .dx-scores-card {
+    padding: 1.25rem 1rem;
+  }
+  .dx-scores-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .dx-hirability {
+    align-items: center;
+    text-align: center;
+  }
+}
+

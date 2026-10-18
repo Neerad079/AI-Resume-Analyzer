@@ -203,50 +203,6 @@ public class AnalysisService {
             - fortressStrengths: only genuine anchors — if challenged elsewhere, these are what the candidate leans back on
             """;
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // PROMPT: REWRITE (full resume) — unchanged, powers /api/analysis/rewrite
-    // ─────────────────────────────────────────────────────────────────────────────
-    private static final String REWRITE_PROMPT = """
-            CRITICAL REQUIREMENT: OUTPUT ONLY VALID RAW JSON. YOUR RESPONSE MUST START IMMEDIATELY WITH THE OPENING BRACE '{' AND END WITH '}'. DO NOT OUTPUT ANY THINKING, REASONING, PREAMBLE, INTRO, OR MARKDOWN.
-
-            You are REWRITE, an elite executive resume writer and ATS algorithm specialist.
-            Your task is to take a candidate's resume and a target job description, then generate an ultra-optimized, high-impact ATS-friendly rewritten resume.
-
-            CRITICAL: Rewrite experience bullet points using the STAR method (Situation, Task, Action, Result) with strong action verbs and quantified impact metrics (% improvements, latency reductions, user scale, efficiency gains). Seamlessly infuse missing target keywords from the job description.
-
-            You MUST respond with ONLY valid JSON (no markdown block formatting, no explanation outside JSON) in this exact format:
-            {
-              "fullName": "<Candidate Name>",
-              "contactInfo": "<email | phone | location | linkedin>",
-              "summary": "<2-3 sentence executive summary tailored for target role incorporating key JD terms>",
-              "experiences": [
-                {
-                  "title": "<Job Title>",
-                  "company": "<Company Name>",
-                  "dates": "<Employment Dates>",
-                  "bullets": ["<STAR bullet 1 with metrics & keywords>", "<STAR bullet 2 with metrics & keywords>"]
-                }
-              ],
-              "skills": ["<Skill1>", "<Skill2>", "<Skill3>"],
-              "projects": [
-                {
-                  "name": "<Project Name>",
-                  "techStack": "<Technologies Used>",
-                  "description": "<Brief description>",
-                  "bullets": ["<Project accomplishment bullet 1>", "<Project accomplishment bullet 2>"]
-                }
-              ],
-              "education": [
-                {
-                  "degree": "<Degree Name>",
-                  "institution": "<University/Institution>",
-                  "year": "<Graduation Year>"
-                }
-              ],
-              "keywordsInfused": ["<Keyword1>", "<Keyword2>", "<Keyword3>"],
-              "atsScoreBoost": <integer estimated boost e.g. 25>
-            }
-            """;
 
     // ═════════════════════════════════════════════════════════════════════════════
     // SERVICE METHODS
@@ -490,39 +446,6 @@ public class AnalysisService {
         }
     }
 
-    /**
-     * Full resume rewrite — unchanged from original implementation.
-     * Powers: POST /api/analysis/rewrite
-     */
-    public RewriteResponse rewriteResume(RewriteRequest request) {
-        String userMessage = String.format("""
-                === CANDIDATE NAME ===
-                %s
-                === CONTACT INFO ===
-                Email: %s, Phone: %s, LinkedIn: %s
-                === TARGET JOB DESCRIPTION ===
-                %s
-                === ORIGINAL RESUME ===
-                %s
-                """,
-                request.getCandidateName() != null ? request.getCandidateName() : "Candidate",
-                request.getEmail() != null ? request.getEmail() : "email@example.com",
-                request.getPhone() != null ? request.getPhone() : "+1 (555) 000-0000",
-                request.getLinkedin() != null ? request.getLinkedin() : "linkedin.com/in/candidate",
-                request.getJobDescription(),
-                request.getResumeText());
-
-        String aiResponse = aiService.chat(REWRITE_PROMPT, userMessage);
-
-        try {
-            String jsonContent = extractJson(aiResponse);
-            ObjectMapper mapper = buildMapper();
-            return mapper.readValue(jsonContent, RewriteResponse.class);
-        } catch (Exception e) {
-            log.error("Failed to parse AI rewrite response. Raw AI output: {}", aiResponse, e);
-            throw new RuntimeException("Failed to parse AI rewrite response", e);
-        }
-    }
 
     // ═════════════════════════════════════════════════════════════════════════════
     // PRIVATE HELPERS

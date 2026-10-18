@@ -3,7 +3,6 @@ import { analysisAPI, historyAPI, resumeAPI, outreachAPI } from '../api';
 import {
   FileSearch,
   Sparkles,
-  AlertTriangle,
   CheckCircle,
   XCircle,
   Lightbulb,
@@ -13,13 +12,8 @@ import {
   Mail,
   Copy,
   Check,
-  Zap,
-  ArrowRight,
-  TrendingUp,
-  Download,
   Key,
 } from 'lucide-react';
-import RewriteStudio from '../components/RewriteStudio';
 import './Analyze.css';
 
 export default function AnalyzePage() {
@@ -32,7 +26,6 @@ export default function AnalyzePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
-  const [showRewriteStudio, setShowRewriteStudio] = useState(false);
 
   const [savedResumes, setSavedResumes] = useState([]);
   const [selectedResumeId, setSelectedResumeId] = useState('');
@@ -152,23 +145,46 @@ export default function AnalyzePage() {
   const handleSave = async () => {
     if (!result) return;
     setSaving(true);
+    setError('');
 
     try {
-      await historyAPI.save({
-        jobTitle: jobTitle || 'Untitled Analysis',
+      const activeResume = savedResumes.find((r) => String(r.id) === String(selectedResumeId));
+      await historyAPI.saveResult({
+        resumeId: (selectedResumeId && selectedResumeId !== 'custom') ? Number(selectedResumeId) : null,
+        resumeTitle: activeResume?.title || (jobTitle ? `Resume - ${jobTitle}` : 'Resume Profile'),
+        resumeText,
+        toolType: 'RECRUITER_MATCH',
+        jobTitle: jobTitle || 'Target Role Analysis',
         companyName,
         jobDescription,
-        resumeText,
-        matchScore: result.matchScore,
-        gapReport: JSON.stringify(result.missingSkills),
-        keywordSuggestions: JSON.stringify(result.keywordSuggestions),
-        atsFlags: JSON.stringify(result.atsFlags),
-        linkedinDm: generatedOutreach?.linkedinDm,
-        coldEmail: generatedOutreach?.coldEmail,
+        score: result.matchScore,
+        resultData: {
+          ...result,
+          outreach: generatedOutreach || undefined,
+        },
       });
+
+      // Also invoke legacy endpoint non-blockingly so legacy views remain consistent
+      try {
+        await historyAPI.save({
+          jobTitle: jobTitle || 'Untitled Analysis',
+          companyName,
+          jobDescription,
+          resumeText,
+          matchScore: result.matchScore,
+          gapReport: JSON.stringify(result.missingSkills),
+          keywordSuggestions: JSON.stringify(result.keywordSuggestions),
+          atsFlags: JSON.stringify(result.atsFlags),
+          linkedinDm: generatedOutreach?.linkedinDm,
+          coldEmail: generatedOutreach?.coldEmail,
+        });
+      } catch {
+        // ignore legacy fallback error
+      }
+
       setSaved(true);
-    } catch {
-      setError('Failed to save analysis');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save analysis to history profile');
     } finally {
       setSaving(false);
     }
@@ -393,18 +409,11 @@ export default function AnalyzePage() {
 
             <div className="score-actions">
               <button
-                className="btn btn-accent btn-sm"
-                onClick={() => setShowRewriteStudio(true)}
-                style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', fontWeight: 700 }}
-              >
-                <Zap size={16} /> AI Resume Rewriter
-              </button>
-              <button
                 className="btn btn-primary btn-sm"
                 onClick={handleSave}
                 disabled={saving || saved}
               >
-                {saved ? <><Check size={16} /> Saved</> : saving ? 'Saving...' : <><Save size={16} /> Save</>}
+                {saved ? <><Check size={16} /> Saved to Profile</> : saving ? 'Saving...' : <><Save size={16} /> Save to Profile</>}
               </button>
               {!generatedOutreach && (
                 <button
@@ -558,13 +567,6 @@ export default function AnalyzePage() {
         </div>
       )}
 
-      {showRewriteStudio && (
-        <RewriteStudio
-          resumeText={resumeText}
-          jobDescription={jobDescription}
-          onClose={() => setShowRewriteStudio(false)}
-        />
-      )}
     </div>
   );
 }

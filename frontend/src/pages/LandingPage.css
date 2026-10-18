@@ -22,11 +22,12 @@
 .landing-nav-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 clamp(16px, 3.5vw, 40px);
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .landing-brand {
@@ -34,11 +35,18 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .landing-links {
   display: flex;
-  gap: 32px;
+  gap: clamp(16px, 2.5vw, 32px);
+}
+
+@media (max-width: 768px) {
+  .landing-links {
+    display: none;
+  }
 }
 
 .landing-link {
@@ -55,12 +63,21 @@
 .landing-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .landing-actions .btn {
+    height: 38px;
+    padding: 0 0.875rem;
+    font-size: 0.8125rem;
+  }
 }
 
 /* Hero */
 .hero-section {
-  padding: 80px 40px 60px;
+  padding: clamp(48px, 8vw, 80px) clamp(16px, 4vw, 40px) 40px;
   display: flex;
   flex-direction: column;
   align-items: center;

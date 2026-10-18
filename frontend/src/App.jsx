@@ -107,6 +107,9 @@ function AppRoutes() {
         }
       />
 
+      {/* Legacy /rewrite route redirect */}
+      <Route path="/rewrite" element={<Navigate to="/analyze" replace />} />
+
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

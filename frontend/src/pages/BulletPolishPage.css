@@ -196,3 +196,26 @@
 @media (max-width: 768px) {
   .bp-summary-card { gap: 1.5rem; }
 }
+
+@media (max-width: 480px) {
+  .bp-page {
+    padding: 1rem 0.75rem;
+  }
+  .bp-summary-card {
+    padding: 1.25rem 1rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .bp-stats {
+    justify-content: center;
+  }
+  .bp-bullet-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .bp-grade-desc {
+    display: none;
+  }
+}
+

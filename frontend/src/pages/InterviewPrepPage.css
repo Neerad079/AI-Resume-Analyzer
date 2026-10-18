@@ -298,6 +298,36 @@
 
 @media (max-width: 768px) {
   .ip-dossier-card { gap: 1.25rem; }
-  .ip-tabs { gap: 0; }
-  .ip-tab { padding: 0.5rem 0.75rem; font-size: 0.8125rem; }
+  .ip-tabs {
+    gap: 0;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ip-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .ip-tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
+
+@media (max-width: 480px) {
+  .ip-page {
+    padding: 1rem 0.75rem;
+  }
+  .ip-dossier-card {
+    padding: 1.25rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ip-q-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+

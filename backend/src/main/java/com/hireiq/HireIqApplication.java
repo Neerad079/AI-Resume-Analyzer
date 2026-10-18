@@ -15,7 +15,52 @@ public class HireIqApplication {
 
     public static void main(String[] args) {
         loadDotEnv();
+        normalizeRailwayDatabaseUrl();
         SpringApplication.run(HireIqApplication.class, args);
+    }
+
+    private static void normalizeRailwayDatabaseUrl() {
+        String springDatasourceUrl = System.getenv("SPRING_DATASOURCE_URL");
+        if (springDatasourceUrl == null || springDatasourceUrl.isBlank()) {
+            springDatasourceUrl = System.getProperty("SPRING_DATASOURCE_URL");
+        }
+        if (springDatasourceUrl != null && !springDatasourceUrl.isBlank()) {
+            return;
+        }
+
+        String rawUrl = System.getenv("MYSQL_URL");
+        if (rawUrl == null || rawUrl.isBlank()) {
+            rawUrl = System.getenv("DATABASE_URL");
+        }
+
+        if (rawUrl != null && rawUrl.startsWith("mysql://")) {
+            try {
+                java.net.URI uri = java.net.URI.create(rawUrl);
+                String host = uri.getHost();
+                int port = uri.getPort() > 0 ? uri.getPort() : 3306;
+                String path = uri.getPath();
+                if (path == null || path.isBlank() || path.equals("/")) {
+                    path = "/hireiq";
+                }
+
+                String jdbcUrl = "jdbc:mysql://" + host + ":" + port + path + "?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+                System.setProperty("spring.datasource.url", jdbcUrl);
+                log.info("Converted raw MySQL URL to JDBC URL for host: {}:{}", host, port);
+
+                String userInfo = uri.getUserInfo();
+                if (userInfo != null && userInfo.contains(":")) {
+                    String[] parts = userInfo.split(":", 2);
+                    if (System.getProperty("spring.datasource.username") == null && System.getenv("MYSQL_USER") == null && System.getenv("MYSQLUSER") == null) {
+                        System.setProperty("spring.datasource.username", parts[0]);
+                    }
+                    if (System.getProperty("spring.datasource.password") == null && System.getenv("MYSQL_PASSWORD") == null && System.getenv("MYSQLPASSWORD") == null) {
+                        System.setProperty("spring.datasource.password", parts[1]);
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Could not normalize raw database URL: {}", e.getMessage());
+            }
+        }
     }
 
     private static void loadDotEnv() {

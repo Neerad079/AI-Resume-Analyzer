@@ -6,13 +6,13 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: hireiq
     ports:
-      - "3308:3306"   # Maps to 3308 on host since 3306 and 3307 are already in use
+      - "3308:3306"
     volumes:
       - hireiq_mysql_data:/var/lib/mysql
     networks:
       - hireiq-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,7 +40,7 @@ services:
     build: ./frontend
     container_name: hireiq-frontend
     ports:
-      - "5173:80"         # Access the app at http://localhost:5173
+      - "5173:80" # Access the app at http://localhost:5173
     env_file:
       - .env
     environment:

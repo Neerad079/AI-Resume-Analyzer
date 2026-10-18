@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { analysisAPI, resumeAPI } from '../api';
+import { analysisAPI, resumeAPI, historyAPI } from '../api';
 import {
   Stethoscope,
   AlertTriangle,
-  AlertCircle,
   Info,
   CheckCircle,
   XCircle,
@@ -14,6 +13,8 @@ import {
   Zap,
   Target,
   TrendingUp,
+  Save,
+  Check,
 } from 'lucide-react';
 import './DiagnosePage.css';
 
@@ -77,6 +78,8 @@ export default function DiagnosePage() {
   const [loading, setLoading]             = useState(false);
   const [result, setResult]               = useState(null);
   const [error, setError]                 = useState('');
+  const [saving, setSaving]               = useState(false);
+  const [saved, setSaved]                 = useState(false);
   const [dragActive, setDragActive]       = useState(false);
   const [savedResumes, setSavedResumes]   = useState([]);
   const [selectedId, setSelectedId]       = useState('');
@@ -127,7 +130,7 @@ export default function DiagnosePage() {
 
   const handleDiagnose = async e => {
     e.preventDefault();
-    setError(''); setResult(null); setLoading(true);
+    setError(''); setResult(null); setLoading(true); setSaved(false);
     try {
       const res = await analysisAPI.diagnose({ resumeText, targetRole: targetRole || undefined });
       setResult(res.data);
@@ -138,7 +141,30 @@ export default function DiagnosePage() {
     }
   };
 
-  const handleReset = () => { setResult(null); setError(''); };
+  const handleSave = async () => {
+    if (!result) return;
+    setSaving(true);
+    setError('');
+    try {
+      const activeResume = savedResumes.find(r => String(r.id) === String(selectedId));
+      await historyAPI.saveResult({
+        resumeId: (selectedId && selectedId !== 'custom') ? Number(selectedId) : null,
+        resumeTitle: activeResume?.title || (targetRole ? `Resume - ${targetRole}` : 'Resume Profile'),
+        resumeText,
+        toolType: 'DIAGNOSER',
+        jobTitle: targetRole || 'General Resume Diagnosis',
+        score: Math.round(((result.atsScore || 0) + (result.recruiterScore || 0)) * 5),
+        resultData: result,
+      });
+      setSaved(true);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to save diagnosis to history profile');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = () => { setResult(null); setError(''); setSaved(false); };
 
   const signalColor = s => {
     if (s === 'Strong')               return 'chip-success';
@@ -233,6 +259,18 @@ export default function DiagnosePage() {
       {/* Results */}
       {result && (
         <div className="dx-results animate-slide-up">
+
+          {/* Action Bar */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', gap: '0.75rem' }}>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={handleSave}
+              disabled={saving || saved}
+            >
+              {saved ? <><Check size={16} /> Saved to Profile</> : saving ? 'Saving...' : <><Save size={16} /> Save to Profile</>}
+            </button>
+          </div>
 
           {/* Scores hero */}
           <div className="dx-scores-card glass-panel">

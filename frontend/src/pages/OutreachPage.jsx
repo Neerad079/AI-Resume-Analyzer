@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { outreachAPI, historyAPI, resumeAPI } from '../api';
 import {
   Mail,
-  Sparkles,
   MessageCircle,
-  FileText,
   BookOpen,
   Copy,
   Check,
@@ -23,6 +21,7 @@ export default function OutreachPage() {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState({});
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const [savedResumes, setSavedResumes] = useState([]);
   const [selectedResumeId, setSelectedResumeId] = useState('');
@@ -83,20 +82,40 @@ export default function OutreachPage() {
   };
 
   const handleSave = async () => {
-    if (!result) return;
+    if (!result || saving) return;
+    setSaving(true);
     try {
-      await historyAPI.save({
-        jobTitle: targetRole,
-        companyName,
+      const activeResume = savedResumes.find(r => String(r.id) === String(selectedResumeId));
+      await historyAPI.saveResult({
+        resumeId: (selectedResumeId && selectedResumeId !== 'custom') ? Number(selectedResumeId) : null,
+        resumeTitle: activeResume?.title || (targetRole ? `Resume - ${targetRole}` : 'Resume Profile'),
         resumeText,
+        toolType: 'OUTREACH',
+        jobTitle: targetRole || 'Outreach Campaign',
+        companyName,
         jobDescription,
-        linkedinDm: result.linkedinDm,
-        coldEmail: `Subject: ${result.coldEmailSubject}\n\n${result.coldEmailBody}`,
-        coverLetterBlurb: result.coverLetterBlurb,
+        resultData: result,
       });
+
+      try {
+        await historyAPI.save({
+          jobTitle: targetRole,
+          companyName,
+          resumeText,
+          jobDescription,
+          linkedinDm: result.linkedinDm,
+          coldEmail: `Subject: ${result.coldEmailSubject}\n\n${result.coldEmailBody}`,
+          coverLetterBlurb: result.coverLetterBlurb,
+        });
+      } catch {
+        // legacy save non-critical
+      }
+
       setSaved(true);
     } catch {
       setError('Failed to save outreach');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -108,6 +127,7 @@ export default function OutreachPage() {
     setResult(null);
     setError('');
     setSaved(false);
+    setSaving(false);
   };
 
   return (
@@ -195,8 +215,8 @@ export default function OutreachPage() {
           {result && (
             <>
               <button type="button" className="btn btn-secondary" onClick={handleReset}><RotateCcw size={16} /> Reset</button>
-              <button type="button" className="btn btn-primary btn-sm" onClick={handleSave} disabled={saved}>
-                {saved ? <><Check size={16} /> Saved</> : <><Save size={16} /> Save</>}
+              <button type="button" className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving || saved}>
+                {saved ? <><Check size={16} /> Saved</> : saving ? 'Saving...' : <><Save size={16} /> Save</>}
               </button>
             </>
           )}

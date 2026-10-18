@@ -109,3 +109,13 @@
     flex-wrap: wrap;
   }
 }
+
+@media (max-width: 480px) {
+  .outreach-page {
+    padding: 1rem 0.75rem;
+  }
+  .outreach-content {
+    padding: 1rem 0.75rem;
+  }
+}
+

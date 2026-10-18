@@ -24,15 +24,6 @@ public class AnalysisController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Full resume rewrite (unchanged).
-     * POST /api/analysis/rewrite
-     */
-    @PostMapping("/rewrite")
-    public ResponseEntity<RewriteResponse> rewriteResume(@Valid @RequestBody RewriteRequest request) {
-        RewriteResponse response = analysisService.rewriteResume(request);
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * THE DIAGNOSER — ATS parse simulation + recruiter eye-scan. Resume-only, no JD required.
