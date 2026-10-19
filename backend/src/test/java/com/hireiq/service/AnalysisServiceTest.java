@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -64,6 +66,13 @@ class AnalysisServiceTest {
         assertEquals(1, res.getTriageResults().size());
         assertEquals("C", res.getTriageResults().get(0).getGrade());
         assertEquals("Worked on backend microservices.", res.getTriageResults().get(0).getOriginal());
+        assertNotNull(res.getVerbUpgradeBank());
+        assertTrue(res.getVerbUpgradeBank().isEmpty());
+        assertNotNull(res.getImpactSummary());
+        assertEquals(1, res.getImpactSummary().getBulletsTotal());
+        assertEquals(1, res.getImpactSummary().getBulletsUpgraded());
+        assertEquals(1, res.getImpactSummary().getMetricsAdded());
+        assertEquals("High", res.getImpactSummary().getEstimatedAtsDensityImprovement());
     }
 
     @Test
@@ -160,6 +169,13 @@ class AnalysisServiceTest {
         assertEquals("Handled customer tickets daily.", res.getTriageResults().get(0).getOriginal());
         assertEquals("Resolved 40+ customer issues daily via Zendesk with a 98% CSAT rating.", res.getTriageResults().get(0).getRewritten());
         assertEquals("No quantification or tools named.", res.getTriageResults().get(0).getProblem());
+        assertNotNull(res.getVerbUpgradeBank());
+        assertTrue(res.getVerbUpgradeBank().isEmpty());
+        assertNotNull(res.getImpactSummary());
+        assertEquals(1, res.getImpactSummary().getBulletsTotal());
+        assertEquals(1, res.getImpactSummary().getBulletsUpgraded());
+        assertEquals(1, res.getImpactSummary().getMetricsAdded());
+        assertEquals("High", res.getImpactSummary().getEstimatedAtsDensityImprovement());
     }
 
     @Test
@@ -240,4 +256,158 @@ class AnalysisServiceTest {
         assertEquals("B", res.getOverallBulletGrade());
         assertEquals(1, res.getTriageResults().size());
     }
+
+    @Test
+    void testTruncatedArrayRepairsAndParsesSuccessfully() {
+        // Simulates the exact production error: AI output ended at line 82 inside an unclosed array
+        String truncatedOutput = """
+                {
+                  "overallBulletGrade": "B",
+                  "criticalSummary": "Strong backend experience with metrics missing.",
+                  "topPriorityActions": ["Add latency benchmarks", "Use Google XYZ structure"],
+                  "triageResults": [
+                    {
+                      "original": "Engineered microservices in Java.",
+                      "problem": "Lacks traffic scale and latency numbers.",
+                      "grade": "C",
+                      "rewritten": "Architected Java microservices serving 10k QPS with 99.9% uptime."
+                    },
+                    {
+                      "original": "Integrated Redis caching.",
+                      "problem": "Missing latency reduction percentage.",
+                      "grade": "B",
+                      "rewritten": "Integrated Redis cluster caching, reducing P99 latency by 45%."
+                    }
+                """; // Truncated! Note no ']' and no outer '}'
+
+        when(aiService.chat(anyString(), anyString())).thenReturn(truncatedOutput);
+
+        BulletRewriteRequest req = new BulletRewriteRequest();
+        req.setResumeText("sample text");
+
+        BulletRewriteResponse res = analysisService.rewriteBullets(req);
+
+        assertNotNull(res);
+        assertEquals("B", res.getOverallBulletGrade());
+        assertEquals(2, res.getTriageResults().size());
+        assertEquals("Engineered microservices in Java.", res.getTriageResults().get(0).getOriginal());
+        assertEquals("Integrated Redis caching.", res.getTriageResults().get(1).getOriginal());
+        assertNotNull(res.getVerbUpgradeBank());
+        assertTrue(res.getVerbUpgradeBank().isEmpty());
+        assertNotNull(res.getImpactSummary());
+        assertEquals(2, res.getImpactSummary().getBulletsTotal());
+        assertEquals(2, res.getImpactSummary().getBulletsUpgraded());
+        assertEquals(2, res.getImpactSummary().getMetricsAdded());
+        assertEquals("High", res.getImpactSummary().getEstimatedAtsDensityImprovement());
+    }
+
+    @Test
+    void testRewriteBulletsPreservesExplicitVerbUpgradeBankAndImpactSummary() {
+        String aiOutput = """
+                {
+                  "overallBulletGrade": "A",
+                  "criticalSummary": "Metrics verified.",
+                  "triageResults": [
+                    {
+                      "original": "Built internal dashboard.",
+                      "grade": "B",
+                      "rewritten": "Designed real-time React analytics dashboard used by 120 internal stakeholders."
+                    }
+                  ],
+                  "verbUpgradeBank": [
+                    {
+                      "weak": "Built",
+                      "alternatives": ["Architected", "Engineered", "Designed"]
+                    }
+                  ],
+                  "impactSummary": {
+                    "bulletsTotal": 1,
+                    "bulletsUpgraded": 1,
+                    "metricsAdded": 1,
+                    "powerVerbsIntroduced": ["Designed"],
+                    "estimatedAtsDensityImprovement": "Moderate"
+                  }
+                }
+                """;
+
+        when(aiService.chat(anyString(), anyString())).thenReturn(aiOutput);
+
+        BulletRewriteRequest req = new BulletRewriteRequest();
+        req.setResumeText("Built internal dashboard.");
+
+        BulletRewriteResponse res = analysisService.rewriteBullets(req);
+
+        assertNotNull(res);
+        assertNotNull(res.getVerbUpgradeBank());
+        assertEquals(1, res.getVerbUpgradeBank().size());
+        assertEquals("Built", res.getVerbUpgradeBank().get(0).getWeak());
+        assertEquals(List.of("Architected", "Engineered", "Designed"), res.getVerbUpgradeBank().get(0).getAlternatives());
+        assertNotNull(res.getImpactSummary());
+        assertEquals(1, res.getImpactSummary().getBulletsTotal());
+        assertEquals(1, res.getImpactSummary().getBulletsUpgraded());
+        assertEquals(1, res.getImpactSummary().getMetricsAdded());
+        assertEquals(List.of("Designed"), res.getImpactSummary().getPowerVerbsIntroduced());
+        assertEquals("Moderate", res.getImpactSummary().getEstimatedAtsDensityImprovement());
+    }
+
+    @Test
+    void testRewriteBulletsWithMalformedVerbUpgradeBankAndImpactSummary() {
+        String aiOutput = """
+                {
+                  "overallBulletGrade": "B",
+                  "bullets": [
+                    {
+                      "bullet": "Worked on payment gateway.",
+                      "rating": "C",
+                      "rewrite": "Engineered PCI-compliant payment gateway processing $2M daily volume."
+                    }
+                  ],
+                  "verbUpgradeBank": [
+                    "invalid-string-entry",
+                    12345,
+                    {
+                      "weak": 999,
+                      "alternatives": ["led", 42]
+                    },
+                    {
+                      "weak": "worked",
+                      "alternatives": ["engineered", "developed"]
+                    }
+                  ],
+                  "impactSummary": {
+                    "bulletsTotal": "invalid-string",
+                    "bulletsUpgraded": true,
+                    "metricsAdded": null,
+                    "powerVerbsIntroduced": ["engineered", 123],
+                    "estimatedAtsDensityImprovement": 456
+                  }
+                }
+                """;
+
+        when(aiService.chat(anyString(), anyString())).thenReturn(aiOutput);
+
+        BulletRewriteRequest req = new BulletRewriteRequest();
+        req.setResumeText("Worked on payment gateway.");
+
+        BulletRewriteResponse res = analysisService.rewriteBullets(req);
+
+        assertNotNull(res);
+        // Non-map entries skipped; map with non-string weak has weak default to ""; valid map parsed
+        assertNotNull(res.getVerbUpgradeBank());
+        assertEquals(2, res.getVerbUpgradeBank().size());
+        assertEquals("", res.getVerbUpgradeBank().get(0).getWeak());
+        assertEquals(List.of("led"), res.getVerbUpgradeBank().get(0).getAlternatives());
+        assertEquals("worked", res.getVerbUpgradeBank().get(1).getWeak());
+        assertEquals(List.of("engineered", "developed"), res.getVerbUpgradeBank().get(1).getAlternatives());
+
+        // Malformed numeric/string impactSummary fields fall back to defaults
+        assertNotNull(res.getImpactSummary());
+        assertEquals(1, res.getImpactSummary().getBulletsTotal());
+        assertEquals(1, res.getImpactSummary().getBulletsUpgraded());
+        assertEquals(1, res.getImpactSummary().getMetricsAdded());
+        assertEquals(List.of("engineered"), res.getImpactSummary().getPowerVerbsIntroduced());
+        assertEquals("High", res.getImpactSummary().getEstimatedAtsDensityImprovement());
+    }
 }
+
+

@@ -144,8 +144,8 @@ public class AnalysisService {
             }
 
             Rules:
-            - CRITICAL: Extract and audit the top 6 to 10 most impactful or weakest bullet points from the resume. If the text has fewer than 6 bullets, audit all of them.
-            - CRITICAL: Keep all strings concise and punchy so the complete JSON object finishes cleanly within token limits.
+            - CRITICAL: Extract and audit the top 4 to 6 most impactful or weakest bullet points from the resume. If the text has fewer than 4 bullets, audit all of them.
+            - CRITICAL: Keep problem statements and rewrites compact (single sentence each) so the complete JSON output finishes well within output token limits.
             - In JSON string values, use \\n for line breaks instead of literal newlines.
             - overallBulletGrade: Overall weighted grade across all bullets (S, A, B, C, or D).
             - Grade every bullet before rewriting: D=Duty Dump, C=Action Without Impact, B=Result Without Method, A=Near-Formula, S=Already strong.
@@ -321,7 +321,14 @@ public class AnalysisService {
 
             // Pass 2: Manual map extraction fallback if needed
             if (response == null || response.getTriageResults() == null || response.getTriageResults().isEmpty()) {
-                Map<String, Object> parsed = mapper.readValue(jsonContent, new TypeReference<>() {});
+                Map<String, Object> parsed;
+                try {
+                    parsed = mapper.readValue(jsonContent, new TypeReference<>() {});
+                } catch (Exception ex) {
+                    log.warn("Pass 2 readValue failed ({}), attempting repairTruncatedJson", ex.getMessage());
+                    String repaired = repairTruncatedJson(jsonContent);
+                    parsed = mapper.readValue(repaired, new TypeReference<>() {});
+                }
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> rawBullets = (List<Map<String, Object>>) parsed.getOrDefault("triageResults",
                         parsed.getOrDefault("bullets",
@@ -355,8 +362,38 @@ public class AnalysisService {
                             .build();
                 }).toList();
 
-                @SuppressWarnings("unchecked")
-                Map<String, Object> impactRaw = (Map<String, Object>) parsed.getOrDefault("impactSummary", Map.of());
+                List<BulletRewriteResponse.VerbUpgrade> verbBank = null;
+                if (parsed.get("verbUpgradeBank") instanceof List<?> vl) {
+                    verbBank = vl.stream()
+                            .filter(item -> item instanceof Map<?, ?>)
+                            .map(item -> (Map<?, ?>) item)
+                            .map(v -> {
+                                String weak = v.get("weak") instanceof String s ? s : "";
+                                return BulletRewriteResponse.VerbUpgrade.builder()
+                                        .weak(weak)
+                                        .alternatives(toStringList(v.get("alternatives")))
+                                        .build();
+                            })
+                            .toList();
+                }
+
+                BulletRewriteResponse.ImpactSummary parsedImpact = null;
+                if (parsed.get("impactSummary") instanceof Map<?, ?> impactRaw) {
+                    int defaultTotal = bullets.size();
+                    int bulletsTotal = impactRaw.get("bulletsTotal") instanceof Number n ? n.intValue() : defaultTotal;
+                    int bulletsUpgraded = impactRaw.get("bulletsUpgraded") instanceof Number n ? n.intValue() : defaultTotal;
+                    int metricsAdded = impactRaw.get("metricsAdded") instanceof Number n ? n.intValue() : defaultTotal;
+                    String density = impactRaw.get("estimatedAtsDensityImprovement") instanceof String s ? s : "High";
+
+                    parsedImpact = BulletRewriteResponse.ImpactSummary.builder()
+                            .bulletsTotal(bulletsTotal)
+                            .bulletsUpgraded(bulletsUpgraded)
+                            .metricsAdded(metricsAdded)
+                            .powerVerbsIntroduced(toStringList(impactRaw.get("powerVerbsIntroduced")))
+                            .estimatedAtsDensityImprovement(density)
+                            .build();
+                }
+
                 String overallGrade = (String) parsed.getOrDefault("overallBulletGrade", null);
 
                 response = BulletRewriteResponse.builder()
@@ -364,14 +401,8 @@ public class AnalysisService {
                         .criticalSummary((String) parsed.getOrDefault("criticalSummary", null))
                         .topPriorityActions(toStringList(parsed.getOrDefault("topPriorityActions", parsed.get("actions"))))
                         .triageResults(bullets)
-                        .verbUpgradeBank(List.of())
-                        .impactSummary(BulletRewriteResponse.ImpactSummary.builder()
-                                .bulletsTotal(((Number) impactRaw.getOrDefault("bulletsTotal", bullets.size())).intValue())
-                                .bulletsUpgraded(((Number) impactRaw.getOrDefault("bulletsUpgraded", bullets.size())).intValue())
-                                .metricsAdded(((Number) impactRaw.getOrDefault("metricsAdded", bullets.size())).intValue())
-                                .powerVerbsIntroduced(toStringList(impactRaw.get("powerVerbsIntroduced")))
-                                .estimatedAtsDensityImprovement((String) impactRaw.getOrDefault("estimatedAtsDensityImprovement", "High"))
-                                .build())
+                        .verbUpgradeBank(verbBank)
+                        .impactSummary(parsedImpact)
                         .build();
             }
 
@@ -449,6 +480,29 @@ public class AnalysisService {
                         "Adopt Google's Accomplished [X], as measured by [Y], by doing [Z] structure",
                         "Lead every achievement with a decisive action verb"
                 ));
+            }
+
+            if (response.getVerbUpgradeBank() == null) {
+                response.setVerbUpgradeBank(List.of());
+            }
+
+            if (response.getImpactSummary() == null) {
+                int totalBullets = response.getTriageResults().size();
+                response.setImpactSummary(BulletRewriteResponse.ImpactSummary.builder()
+                        .bulletsTotal(totalBullets)
+                        .bulletsUpgraded(totalBullets)
+                        .metricsAdded(totalBullets)
+                        .powerVerbsIntroduced(List.of())
+                        .estimatedAtsDensityImprovement("High")
+                        .build());
+            } else {
+                if (response.getImpactSummary().getPowerVerbsIntroduced() == null) {
+                    response.getImpactSummary().setPowerVerbsIntroduced(List.of());
+                }
+                if (response.getImpactSummary().getEstimatedAtsDensityImprovement() == null ||
+                        response.getImpactSummary().getEstimatedAtsDensityImprovement().isBlank()) {
+                    response.getImpactSummary().setEstimatedAtsDensityImprovement("High");
+                }
             }
 
             return response;
@@ -603,12 +657,13 @@ public class AnalysisService {
             }
         }
 
-        // Fallback: simple first-last brace slice
+        // Fallback: truncated JSON where outermost brace wasn't closed
         int firstBrace = cleaned.indexOf('{');
         if (firstBrace != -1) {
             int lastBrace  = cleaned.lastIndexOf('}');
             if (lastBrace > firstBrace) {
-                return cleaned.substring(firstBrace, lastBrace + 1);
+                String candidate = cleaned.substring(firstBrace, lastBrace + 1);
+                return repairTruncatedJson(candidate);
             }
         }
 
@@ -616,10 +671,64 @@ public class AnalysisService {
         throw new IllegalArgumentException("AI response did not contain JSON object {...}");
     }
 
+    /**
+     * Repairs truncated JSON where an array or outer object was left unclosed due to token limits.
+     * Closes open brackets '[' and braces '{' in proper reverse order so parsing succeeds.
+     */
+    public static String repairTruncatedJson(String text) {
+        if (text == null || text.isBlank()) return "{}";
+
+        int lastBrace = text.lastIndexOf('}');
+        if (lastBrace == -1) return text;
+
+        String trimmed = text.substring(0, lastBrace + 1).trim();
+
+        java.util.Deque<Character> stack = new java.util.ArrayDeque<>();
+        boolean inString = false;
+        boolean escape = false;
+
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (escape) {
+                escape = false;
+                continue;
+            }
+            if (c == '\\') {
+                escape = true;
+                continue;
+            }
+            if (c == '"') {
+                inString = !inString;
+                continue;
+            }
+            if (inString) continue;
+
+            if (c == '{' || c == '[') {
+                stack.push(c);
+            } else if (c == '}' && !stack.isEmpty() && stack.peek() == '{') {
+                stack.pop();
+            } else if (c == ']' && !stack.isEmpty() && stack.peek() == '[') {
+                stack.pop();
+            }
+        }
+
+        StringBuilder sb = new StringBuilder(trimmed);
+        while (!stack.isEmpty()) {
+            char open = stack.pop();
+            if (open == '[') {
+                sb.append("\n  ]");
+            } else if (open == '{') {
+                sb.append("\n}");
+            }
+        }
+
+        return sb.toString();
+    }
+
     @SuppressWarnings("unchecked")
     private List<String> toStringList(Object obj) {
-        if (obj instanceof List<?>) {
-            return (List<String>) obj;
+        if (obj instanceof List<?> l) {
+            return l.stream().filter(String.class::isInstance).map(String.class::cast).toList();
         }
         return List.of();
     }

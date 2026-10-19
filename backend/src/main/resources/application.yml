@@ -45,7 +45,7 @@ jwt:
 ai:
   provider: ${AI_PROVIDER:nvidia} # options: nvidia, groq, gemini, openai
   api-key: ${AI_API_KEY:}
-  model: ${AI_MODEL:moonshotai/kimi-k3}
+  model: ${AI_MODEL:nvidia/nemotron-3-super-120b-a12b}
   base-url: ${AI_BASE_URL:https://integrate.api.nvidia.com/v1}
 
 # Google OAuth Properties
